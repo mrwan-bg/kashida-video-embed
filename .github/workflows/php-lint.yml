@@ -1,0 +1,41 @@
+name: PHP Syntax Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  php-lint:
+    name: PHP lint (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['7.4', '8.3']
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+
+      - name: Check PHP syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' php_files < <(find . -type f -name '*.php' -not -path './.git/*' -print0)
+          if [ "${#php_files[@]}" -eq 0 ]; then
+            echo "No PHP files found."
+            exit 1
+          fi
+          for file in "${php_files[@]}"; do
+            echo "Checking ${file}"
+            php -l "${file}"
+          done
