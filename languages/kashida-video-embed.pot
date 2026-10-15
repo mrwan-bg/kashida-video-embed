@@ -1,0 +1,736 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Kashida Video Embed 1.4.13\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "A shortcode stopped displaying after deletion"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Add New"
+msgstr ""
+
+msgid "Add New Video"
+msgstr ""
+
+msgid "Add a video using its regular share URL."
+msgstr ""
+
+msgid "Additional supported sources include Dailymotion, TikTok, Twitch, Instagram and WordPress.tv when their embed methods are available."
+msgstr ""
+
+msgid "All Videos"
+msgstr ""
+
+msgid "Applies to supported direct video files and providers; some platforms ignore this option."
+msgstr ""
+
+msgid "Aspect ratio"
+msgstr ""
+
+msgid "Available shortcode attributes include id, url, ratio (16:9, 9:16, 4:3, 1:1), controls (yes/no), lazy (yes/no) and display (player/provider). When id is used, saved settings for that video take priority."
+msgstr ""
+
+msgid "Check that the URL is public and copied from the provider’s Share option. Try the canonical video URL or official embed code. Refresh the preview after changing fields."
+msgstr ""
+
+msgid "Check the public site URL, HTTPS, cache, Content Security Policy, iframe restrictions, provider privacy settings and whether the provider allows embedding on that domain."
+msgstr ""
+
+msgid "Choose 16:9, 9:16, 4:3 or 1:1. Some provider players may enforce their own dimensions."
+msgstr ""
+
+msgid "Choose a platform URL. Instructions for copying its link or embed code will appear here."
+msgstr ""
+
+msgid "Choose the aspect ratio, display mode, player controls and lazy loading options."
+msgstr ""
+
+msgid "Click Refresh preview to test the current settings, then Save Video. Saving keeps you on the edit screen."
+msgstr ""
+
+msgid "Complete help guide, features and troubleshooting."
+msgstr ""
+
+msgid "Copied"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid "Copy shortcode"
+msgstr ""
+
+msgid "Copy the File URL and paste it into Video URL."
+msgstr ""
+
+msgid "Copy the original public share link from the platform, then paste it into Video URL. Use Embed code only when automatic embedding is unavailable."
+msgstr ""
+
+msgid "Copy the video link. If embedding is restricted, ask the owner to allow embedding on your domain."
+msgstr ""
+
+msgid "Copy this shortcode into any page or post to display this video."
+msgstr ""
+
+msgid "Dailymotion Player ID (required for Dailymotion links)"
+msgstr ""
+
+msgid "Dailymotion embed guide"
+msgstr ""
+
+msgid "Defers iframe loading where supported and uses preload=none for direct video files to reduce initial page work."
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete this video? Shortcodes using it will stop displaying. This action cannot be undone."
+msgstr ""
+
+msgid "Deleting a saved video permanently removes its plugin entry. Shortcodes using that entry ID will no longer display. Update or remove those shortcodes from your pages."
+msgstr ""
+
+msgid "Display mode"
+msgstr ""
+
+msgid "Does the plugin send video data to Kashida?"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Edit Video"
+msgstr ""
+
+msgid "Embed code"
+msgstr ""
+
+msgid "Embed code mode"
+msgstr ""
+
+msgid "Embedded video"
+msgstr ""
+
+msgid "Enable lazy loading"
+msgstr ""
+
+msgid "Enable lazy loading for embedded players"
+msgstr ""
+
+msgid "Enter a clear title, then paste the provider’s normal share URL in Video URL. Use Embed code only if a provider’s URL cannot be embedded automatically."
+msgstr ""
+
+msgid "Enter a video URL first."
+msgstr ""
+
+msgid "Features explained"
+msgstr ""
+
+msgid "Getting started"
+msgstr ""
+
+msgid "Gutenberg block"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+msgid "How to copy a link from each platform"
+msgstr ""
+
+msgid "Insert the block and provide a video URL and display options without typing a shortcode."
+msgstr ""
+
+msgid "Invalid video ID."
+msgstr ""
+
+msgid "Kashida Media Services by %s"
+msgstr ""
+
+msgid "Kashida Video Embed"
+msgstr ""
+
+msgid "Lazy loading"
+msgstr ""
+
+msgid "Manage saved video entries, search by title or URL, sort the list, copy shortcodes, edit entries and delete entries."
+msgstr ""
+
+msgid "Manage videos and reuse them anywhere on your site."
+msgstr ""
+
+msgid "Newest first"
+msgstr ""
+
+msgid "No analytics or video data is sent to Kashida by this plugin. When a visitor loads an external player, the visitor’s browser connects to that provider and is subject to its privacy policy."
+msgstr ""
+
+msgid "No videos yet. Add your first video using its URL."
+msgstr ""
+
+msgid "Open All Videos and copy the shortcode, or insert the Kashida Video Embed block in the block editor."
+msgstr ""
+
+msgid "Open Help Guide"
+msgstr ""
+
+msgid "Open Kashida Video Embed → Add New."
+msgstr ""
+
+msgid "Open Media → Library and select the video file."
+msgstr ""
+
+msgid "Open official help"
+msgstr ""
+
+msgid "Open the post containing the video."
+msgstr ""
+
+msgid "Open the post menu and select Copy link."
+msgstr ""
+
+msgid "Open the public post or Reel."
+msgstr ""
+
+msgid "Open the public video or Reel."
+msgstr ""
+
+msgid "Open the stream, past broadcast or clip."
+msgstr ""
+
+msgid "Open the video and select Share → Copy link."
+msgstr ""
+
+msgid "Open the video and select Share."
+msgstr ""
+
+msgid "Open the video page and copy its public URL."
+msgstr ""
+
+msgid "Open the video."
+msgstr ""
+
+msgid "Open video on X"
+msgstr ""
+
+msgid "Open video on its website"
+msgstr ""
+
+msgid "Paste a regular video share link. The plugin detects supported providers and creates the appropriate embed URL where supported."
+msgstr ""
+
+msgid "Paste a video URL or provider embed code. Settings are applied to the preview below."
+msgstr ""
+
+msgid "Paste a video URL to see platform instructions"
+msgstr ""
+
+msgid "Paste a video URL. We handle the embed."
+msgstr ""
+
+msgid "Paste an iframe embed code supplied by the provider. Only supported provider domains are accepted for security."
+msgstr ""
+
+msgid "Paste the link and test the preview. If it is not embeddable, use the official embed code if provided."
+msgstr ""
+
+msgid "Paste the link into Video URL."
+msgstr ""
+
+msgid "Paste the original link. If Dailymotion rejects the player, use the official embed code or a valid Player ID from Dailymotion Studio."
+msgstr ""
+
+msgid "Paste the original share URL. If the provider rejects the player or the video owner restricts embedding, use a valid Player ID or the official embed code supplied by Dailymotion Studio."
+msgstr ""
+
+msgid "Player controls"
+msgstr ""
+
+msgid "Player-only mode minimizes surrounding provider details where the provider supports it; provider mode may show additional platform information. The provider controls the final appearance."
+msgstr ""
+
+msgid "Please enter a valid HTTP or HTTPS video URL."
+msgstr ""
+
+msgid "Please provide a valid iframe embed code from a supported provider."
+msgstr ""
+
+msgid "Preview"
+msgstr ""
+
+msgid "Privacy, compatibility and support"
+msgstr ""
+
+msgid "Private posts and videos requiring login may not embed."
+msgstr ""
+
+msgid "Private-account content cannot be embedded for public visitors."
+msgstr ""
+
+msgid "Quick tip"
+msgstr ""
+
+msgid "Refresh preview"
+msgstr ""
+
+msgid "Save Video"
+msgstr ""
+
+msgid "Saved video entry: copy the shortcode shown in All Videos. Example:"
+msgstr ""
+
+msgid "Search title, URL or shortcode…"
+msgstr ""
+
+msgid "Search videos"
+msgstr ""
+
+msgid "Search your saved videos, copy a shortcode, edit settings or delete an item."
+msgstr ""
+
+msgid "Select Copy link. Alternatively, select Embed and copy the provided embed code."
+msgstr ""
+
+msgid "Select Share and copy the original URL."
+msgstr ""
+
+msgid "Select Share or the three-dot menu, then Copy link."
+msgstr ""
+
+msgid "Select Share → Copy link."
+msgstr ""
+
+msgid "Select Share, then Copy link. For embed code, select Share → Embed → Copy."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Shortcode"
+msgstr ""
+
+msgid "Shortcode and block usage"
+msgstr ""
+
+msgid "Show player controls when supported"
+msgstr ""
+
+msgid "Show provider details and interface"
+msgstr ""
+
+msgid "Sort"
+msgstr ""
+
+msgid "Source type"
+msgstr ""
+
+msgid "Supported formats include MP4, WebM, OGV and OGG."
+msgstr ""
+
+msgid "Supported providers and limitations"
+msgstr ""
+
+msgid "Test on the actual HTTPS site. The Twitch parent value must match the domain displaying the player, and nested embedding contexts can require additional parent domains. Local .local domains or security policies may prevent playback."
+msgstr ""
+
+msgid "Test on the real HTTPS domain. Local development domains and nested frames can block the player."
+msgstr ""
+
+msgid "The embed may display the original post and its details, not only the video."
+msgstr ""
+
+msgid "The plugin does not add tracking or send video information to external Kashida services. Third-party embeds may contact their providers. Keep WordPress and the plugin updated, test after major theme or provider changes, and retain a backup before upgrading."
+msgstr ""
+
+msgid "The preview is blank or shows a provider error"
+msgstr ""
+
+msgid "The video could not be deleted."
+msgstr ""
+
+msgid "The video plays on one site but not another"
+msgstr ""
+
+msgid "This embed code uses an unsupported provider domain."
+msgstr ""
+
+msgid "This video provider does not allow automatic embedding for this URL. Try a supported share link or check the provider’s embedding restrictions."
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Title A–Z"
+msgstr ""
+
+msgid "Title Z–A"
+msgstr ""
+
+msgid "Troubleshooting"
+msgstr ""
+
+msgid "Twitch embed documentation"
+msgstr ""
+
+msgid "Twitch says refused to connect or parent is invalid"
+msgstr ""
+
+msgid "URL mode"
+msgstr ""
+
+msgid "Untitled video"
+msgstr ""
+
+msgid "Use a URL directly without saving it first:"
+msgstr ""
+
+msgid "Use a public HTTPS file URL ending in .mp4, .webm, .ogv or .ogg. The server must return a supported video MIME type and allow access to the file."
+msgstr ""
+
+msgid "Use the original stream, video or clip URL. Twitch requires HTTPS and the correct parent domain. Local development domains, nested frames, privacy settings or provider restrictions may block playback."
+msgstr ""
+
+msgid "Use the shortcode in any post, page or shortcode-enabled widget. The Gutenberg block is also available in the block inserter."
+msgstr ""
+
+msgid "Video"
+msgstr ""
+
+msgid "Video Library"
+msgstr ""
+
+msgid "Video Preview"
+msgstr ""
+
+msgid "Video URL"
+msgstr ""
+
+msgid "Video deleted successfully."
+msgstr ""
+
+msgid "Video library"
+msgstr ""
+
+msgid "Video not found."
+msgstr ""
+
+msgid "Video only"
+msgstr ""
+
+msgid "Video saved. You can continue editing its settings below."
+msgstr ""
+
+msgid "Video shortcode"
+msgstr ""
+
+msgid "Video title"
+msgstr ""
+
+msgid "Videos"
+msgstr ""
+
+msgid "Videos requiring login, restricted by their owner, removed, age-gated or blocked from third-party embedding may not play. The plugin cannot bypass provider restrictions."
+msgstr ""
+
+msgid "WordPress embed documentation"
+msgstr ""
+
+msgid "X does not provide a video-only stream for this post. Try another public video post or choose “Show provider details and interface”."
+msgstr ""
+
+msgid "You are not allowed to delete this video."
+msgstr ""
+
+msgid "You are not allowed to do this."
+msgstr ""
+
+msgid "You are not allowed to edit this video."
+msgstr ""
+
+msgid "Your video preview will appear here when supported."
+msgstr ""
+
+msgid "and direct MP4, WebM, OGV/OGG video files are supported to the extent allowed by each provider."
+msgstr ""
+
+msgid "e.g. Product introduction"
+msgstr ""
+
+
+
+msgid "Video Collections"
+msgstr ""
+
+msgid "Saved collections"
+msgstr ""
+
+msgid "Create a collection"
+msgstr ""
+
+msgid "Edit collection"
+msgstr ""
+
+msgid "Create and manage reusable video collections."
+msgstr ""
+
+msgid "Edit a collection to change its videos or design without changing the shortcode already used on your pages."
+msgstr ""
+
+msgid "Collection"
+msgstr ""
+
+msgid "Delete this collection? Existing shortcodes will no longer display it."
+msgstr ""
+
+msgid "No saved collections yet. Create your first collection below."
+msgstr ""
+
+msgid "Collection saved. Its shortcode stays the same when you edit the collection."
+msgstr ""
+
+msgid "Collection deleted."
+msgstr ""
+
+msgid "Select videos, customize the layout, save the collection, then copy its permanent shortcode."
+msgstr ""
+
+msgid "Collection name"
+msgstr ""
+
+msgid "e.g. Tutorials"
+msgstr ""
+
+msgid "Step 1 — Select videos"
+msgstr ""
+
+msgid "Select all"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "No videos selected"
+msgstr ""
+
+msgid "Step 3 — Save and copy"
+msgstr ""
+
+msgid "Generate shortcode"
+msgstr ""
+
+msgid "Choose videos and options, then generate the collection settings."
+msgstr ""
+
+msgid "Update collection"
+msgstr ""
+
+msgid "Save collection"
+msgstr ""
+
+msgid "Permanent shortcode"
+msgstr ""
+
+msgid "Save the collection to get its permanent shortcode."
+msgstr ""
+
+msgid "The collection shortcode uses a stable ID. Editing the saved collection updates its display without changing the shortcode already pasted into pages."
+msgstr ""
+
+msgid "Add videos to the library before creating a collection."
+msgstr ""
+
+msgid "Video collections and layouts"
+msgstr ""
+
+msgid "Live collection designer"
+msgstr ""
+
+msgid "Private/restricted videos"
+msgstr ""
+
+msgid "Direct files"
+msgstr ""
+
+msgid "Grid"
+msgstr ""
+
+msgid "List"
+msgstr ""
+
+msgid "Carousel"
+msgstr ""
+
+msgid "Slider"
+msgstr ""
+
+msgid "Featured + Playlist"
+msgstr ""
+
+msgid "Responsive columns"
+msgstr ""
+
+msgid "Content"
+msgstr ""
+
+msgid "Appearance"
+msgstr ""
+
+msgid "Display settings"
+msgstr ""
+
+msgid "Desktop"
+msgstr ""
+
+msgid "Tablet"
+msgstr ""
+
+msgid "Mobile"
+msgstr ""
+
+msgid "Show info column"
+msgstr ""
+
+msgid "Show video titles"
+msgstr ""
+
+msgid "Show metadata"
+msgstr ""
+
+msgid "Card background"
+msgstr ""
+
+msgid "Title color"
+msgstr ""
+
+msgid "Title size"
+msgstr ""
+
+msgid "Spacing"
+msgstr ""
+
+msgid "Border radius"
+msgstr ""
+
+msgid "Layout designer"
+msgstr ""
+
+msgid "Choose a layout, then fine-tune it. The preview uses the same styles as your website."
+msgstr ""
+
+msgid "Reset settings"
+msgstr ""
+
+msgid "Live preview"
+msgstr ""
+
+msgid "Responsive card grid"
+msgstr ""
+
+msgid "Vertical rows with info"
+msgstr ""
+
+msgid "Horizontal scrolling strip"
+msgstr ""
+
+msgid "Full-width hero slides"
+msgstr ""
+
+msgid "Player with side playlist"
+msgstr ""
+
+msgid "Layout"
+msgstr ""
+
+msgid "Playlist"
+msgstr ""
+
+msgid "Playlist height"
+msgstr ""
+
+msgid "Enable scrolling"
+msgstr ""
+
+msgid "Active item color"
+msgstr ""
+
+msgid "Playlist border color"
+msgstr ""
+
+msgid "Playlist icon color"
+msgstr ""
+
+msgid "Show arrows"
+msgstr ""
+
+msgid "Show pagination dots"
+msgstr ""
+
+msgid "Overlay color"
+msgstr ""
+
+msgid "Overlay opacity"
+msgstr ""
+
+msgid "Playback"
+msgstr ""
+
+msgid "Autoplay"
+msgstr ""
+
+msgid "Interval"
+msgstr ""
+
+msgid "Navigation"
+msgstr ""
+
+msgid "Slide"
+msgstr ""
+
+msgid "Height"
+msgstr ""
+
+msgid "Image fit"
+msgstr ""
+
+msgid "Cover (crop)"
+msgstr ""
+
+msgid "Contain (fit)"
+msgstr ""
+
+msgid "Slider container background"
+msgstr ""
+
+msgid "Row appearance"
+msgstr ""
+
+msgid "Row background"
+msgstr ""
+
+msgid "Thumbnail width"
+msgstr ""
+
+msgid "Visible items"
+msgstr ""
+
+
+msgid "Step 2 — Customize display"
+msgstr ""
+
+msgid "Grid layout"
+msgstr ""
+
+msgid "List layout"
+msgstr ""
+
+msgid "Carousel layout"
+msgstr ""
+
+msgid "Slider layout"
+msgstr ""
+
+msgid "Featured + Playlist layout"
+msgstr ""
