@@ -7,11 +7,11 @@
   Kashida Video Embed
 </h1>
 
-<p align="center">A lightweight WordPress plugin for embedding videos and displaying them in flexible, responsive layouts.</p>
-<p align="center"><strong>Version 1.4.22</strong> · <strong>GPL-2.0-or-later</strong></p>
+<p align="center">A WordPress plugin for embedding videos and displaying them in reusable, responsive layouts.</p>
+<p align="center"><strong>Version 1.4.22</strong> · <strong>WordPress 6.0+</strong> · <strong>PHP 7.4+</strong> · <strong>GPL-2.0-or-later</strong></p>
 
 <p align="center">
-  <a href="https://github.com/mrwan-bg/kashida-video-embed/releases/tag/v1.4.22">Download v1.4.22</a> ·
+  <a href="https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.22/kashida-video-embed-1.4.22.zip">Download v1.4.22</a> ·
   <a href="https://github.com/mrwan-bg/kashida-video-embed/issues">Report an issue</a>
 </p>
 
@@ -19,154 +19,141 @@
 
 ## Overview
 
-**Kashida Video Embed** makes it easier to add supported video URLs to WordPress and present video content without manually writing embed code. Use the plugin to configure video displays, customize their appearance, and place them in your pages or posts with shortcodes.
+**Kashida Video Embed** helps WordPress site editors add supported video URLs without manually writing embed code. Manage videos in a searchable library, create reusable collections, customize the display, and insert content with shortcodes or the Gutenberg block.
 
-It can be useful for tutorials, educational content, news, reviews, portfolios, interviews, and other video-focused websites.
+Suitable for educational websites, tutorials, news, reviews, portfolios, interviews, and other video-focused content.
 
 ## Key features
 
-- **Four display layouts:** Grid, List, Carousel, and Slider.
-- **Independent group settings:** configure display settings for each video group independently.
-- **Shortcode generator:** generate a shortcode and choose the available layout and display options.
-- **Visual customization:** adjust supported colors, titles, and presentation settings.
-- **Responsive video display:** layouts are designed to work across different screen sizes.
-- **Translation-ready:** translation support helps multilingual WordPress sites.
-- **Built-in Help section:** usage guidance is available from the plugin administration area.
-- **Lightweight approach:** designed to add video display functionality without turning the plugin into a general-purpose page builder.
-
-Video playback and embedding behavior may vary by provider, privacy settings, browser, and the provider's current policies.
+- **Four collection layouts:** Grid, List, Carousel, and Slider.
+- **Video library:** save and manage videos from supported public URLs or supported provider embed code.
+- **Reusable collections:** group videos and display them in multiple places.
+- **Shortcode generator:** choose available layout and display options and copy the generated shortcode.
+- **Layout customization:** adjust supported colors, titles, spacing, columns, and other settings depending on the selected layout.
+- **Responsive presentation:** adapt the display to different screen sizes using available settings.
+- **Gutenberg block:** embed supported video content in the block editor.
+- **Arabic translation:** Arabic translation files are included.
+- **Built-in Help section:** access usage guidance from the plugin administration area.
+- **Privacy-conscious behavior:** the plugin does not send analytics or video data to Kashida; third-party video players may connect to their own providers when loaded.
 
 ## Layout gallery
 
 <table>
   <tr>
     <td width="50%" align="center">
-      <strong>Grid</strong><br>
-      <a href="screenshots/video-embed-features-showcase.png"><img src="screenshots/video-embed-features-showcase.png" alt="Kashida Video Embed feature and grid presentation" width="100%"></a>
-      <br><sub>Display multiple videos in a structured grid.</sub>
+      <a href="screenshots/video-embed-features-showcase.png"><img src="screenshots/video-embed-features-showcase.png" alt="Kashida Video Embed features overview" width="100%"></a>
+      <br><strong>Features overview</strong>
     </td>
     <td width="50%" align="center">
-      <strong>List</strong><br>
-      <a href="screenshots/kashida-video-embed-showcase.png"><img src="screenshots/kashida-video-embed-showcase.png" alt="Kashida Video Embed showcase" width="100%"></a>
-      <br><sub>Present video items in a clear browsing format.</sub>
+      <a href="screenshots/kashida-video-layout-showcase.png"><img src="screenshots/kashida-video-layout-showcase.png" alt="Kashida Video Embed layout showcase" width="100%"></a>
+      <br><strong>Layout options</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <strong>Carousel</strong><br>
-      <a href="screenshots/kashida-video-layout-showcase.png"><img src="screenshots/kashida-video-layout-showcase.png" alt="Kashida Video Embed layout options" width="100%"></a>
-      <br><sub>Browse videos in a horizontally navigable layout.</sub>
+      <a href="screenshots/kashida-video-embed-showcase.png"><img src="screenshots/kashida-video-embed-showcase.png" alt="Kashida Video Embed plugin showcase" width="100%"></a>
+      <br><strong>Plugin showcase</strong>
     </td>
     <td width="50%" align="center">
-      <strong>Slider</strong><br>
-      <a href="screenshots/fully-responsive-video-embed-showcase.png"><img src="screenshots/fully-responsive-video-embed-showcase.png" alt="Responsive video display" width="100%"></a>
-      <br><sub>Feature video content in a slide-based presentation.</sub>
+      <a href="screenshots/fully-responsive-video-embed-showcase.png"><img src="screenshots/fully-responsive-video-embed-showcase.png" alt="Kashida Video Embed responsive display" width="100%"></a>
+      <br><strong>Responsive display</strong>
     </td>
   </tr>
-</table>
-
-## More screenshots
-
-<table>
   <tr>
     <td width="50%" align="center">
-      <a href="screenshots/kashida-video-embed-plugin-overview.png"><img src="screenshots/kashida-video-embed-plugin-overview.png" alt="Kashida Video Embed plugin overview" width="100%"></a>
+      <a href="screenshots/kashida-video-embed-plugin-overview.png"><img src="screenshots/kashida-video-embed-plugin-overview.png" alt="Kashida Video Embed overview" width="100%"></a>
       <br><strong>Plugin overview</strong>
     </td>
     <td width="50%" align="center">
-      <a href="screenshots/embed-videos-with-ease.png"><img src="screenshots/embed-videos-with-ease.png" alt="Embed videos with ease" width="100%"></a>
-      <br><strong>Easy video embedding</strong>
+      <a href="screenshots/embed-videos-with-ease.png"><img src="screenshots/embed-videos-with-ease.png" alt="Embedding videos with Kashida Video Embed" width="100%"></a>
+      <br><strong>Video embedding</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <a href="screenshots/kashida-plugin-support-showcase.png"><img src="screenshots/kashida-plugin-support-showcase.png" alt="Kashida plugin support" width="100%"></a>
+      <a href="screenshots/kashida-plugin-support-showcase.png"><img src="screenshots/kashida-plugin-support-showcase.png" alt="Kashida Video Embed help and support" width="100%"></a>
       <br><strong>Help and support</strong>
     </td>
     <td width="50%" align="center">
-      <a href="screenshots/plugin-icon.png"><img src="screenshots/plugin-icon.png" alt="Kashida Video Embed icon" width="45%"></a>
+      <a href="screenshots/plugin-icon.png"><img src="screenshots/plugin-icon.png" alt="Kashida Video Embed plugin icon" width="45%"></a>
       <br><strong>Plugin icon</strong>
     </td>
   </tr>
 </table>
 
+## Supported video sources
+
+Supported sources include YouTube, Vimeo, Facebook, X/Twitter, Dailymotion, TikTok, Twitch, Instagram, and WordPress.tv when embedding is permitted. Supported direct video files include MP4, WebM, and OGV.
+
+Provider restrictions still apply. Some services require canonical URLs, a provider-specific player ID, HTTPS, a configured parent domain, authentication, or embedding permission. The plugin cannot override restrictions imposed by the original provider.
+
 ## How it works
 
-1. **Add video content** using a URL supported by the plugin.
-2. **Configure a video group** and select the layout you want to use.
-3. **Customize the display** using the options available in the plugin.
-4. **Generate the shortcode** and copy it from the plugin interface.
-5. **Publish the content** by placing the shortcode in a WordPress page, post, or compatible shortcode area.
-
-For the most reliable results, use the shortcode generated by the installed version of the plugin rather than copying an example and assuming every attribute is supported.
+1. **Add a video:** open the plugin's administration area and paste a supported URL or provider embed code.
+2. **Save and manage videos:** use the video library to organize and find saved entries.
+3. **Create a collection:** select the videos you want to display together.
+4. **Choose a layout:** select Grid, List, Carousel, or Slider and adjust the available settings.
+5. **Generate the shortcode:** use the collection generator and copy the shortcode it produces.
+6. **Publish:** insert the shortcode in a WordPress page, post, or compatible shortcode area. Use the Gutenberg block for supported individual video embeds.
 
 ## Requirements and compatibility
 
-- A WordPress installation where you have permission to install and activate plugins.
-- A PHP version supported by both WordPress and this plugin release.
-- A video URL supported by the plugin and permitted to be embedded by its provider.
+| Requirement | Supported version |
+| --- | --- |
+| WordPress minimum | 6.0 |
+| PHP minimum | 7.4 |
+| Tested up to | WordPress 7.1 |
+| Stable plugin version | 1.4.22 |
+| License | GPL-2.0-or-later |
 
-The exact minimum WordPress and PHP versions are not stated here because they have not been independently verified against the release's plugin header. Check the plugin metadata and the [v1.4.22 release](https://github.com/mrwan-bg/kashida-video-embed/releases/tag/v1.4.22) before installing on a production site.
-
-### Important notes about video providers
-
-- Videos may need to be public or have embedding enabled.
-- A provider may restrict playback by region, account, privacy settings, or domain.
-- The plugin cannot override restrictions imposed by the original provider.
-- Playback controls and behavior can differ between platforms and browsers.
+Use a currently supported PHP release where your hosting environment and WordPress installation allow it. Back up your site and test updates on a staging site before deploying them to production.
 
 ## Installation
 
-### Install using the release ZIP
-
-1. Download **[kashida-video-embed-1.4.22.zip](https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.22/kashida-video-embed-1.4.22.zip)**.
-2. In your WordPress dashboard, open **Plugins → Add New Plugin → Upload Plugin**.
+1. Download [kashida-video-embed-1.4.22.zip](https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.22/kashida-video-embed-1.4.22.zip).
+2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
 3. Select the downloaded ZIP and click **Install Now**.
 4. Click **Activate Plugin**.
-5. Open the plugin's administration screen and follow the built-in Help instructions.
+5. Open **Kashida Video Embed** in the WordPress admin menu and follow the built-in Help instructions.
 
-### Install from the WordPress plugin directory
+## Shortcode examples
 
-If the plugin is available in the directory for your site, open **Plugins → Add New Plugin**, search for **Kashida Video Embed**, then install and activate it.
-
-## Shortcode usage
-
-The plugin includes a shortcode generator. Use the shortcode created by the plugin interface for your actual configuration.
-
-Illustrative example for a saved video:
+Use the shortcode generated by the plugin interface for your saved video or collection. The following examples illustrate the available individual-video shortcode formats:
 
 ```text
 [kashida_video_embed id="123"]
 ```
 
-Illustrative example using a supported video URL:
-
 ```text
 [kashida_video_embed url="https://youtu.be/VIDEO_ID" ratio="16:9"]
 ```
 
-Replace the sample ID or URL with your own. These examples are illustrative; use the attributes and shortcode format supported by the installed release.
+Replace the example ID or URL with your own content. Use only attributes supported by the installed version; for saved collections, copy the generated shortcode instead of guessing its identifier.
+
+## Privacy
+
+The plugin does not send analytics or video data to Kashida. Embedded third-party players may connect to their own providers when a visitor loads a page containing a video. Each provider's privacy policy and embedding behavior apply.
 
 ## Troubleshooting
 
-- **The video is missing:** check the URL, confirm that the source is supported, and verify the provider's embedding permissions.
-- **Playback is blocked:** review the video's privacy settings, regional restrictions, and provider account requirements.
-- **The shortcode is shown as text:** place it in a WordPress content area that processes shortcodes.
-- **The layout differs from the preview:** check the selected display settings, theme styles, and screen size.
-- **A previously working embed stops working:** test the source URL directly; providers can change their embedding rules independently of the plugin.
+- **Video does not display:** check that the URL is correct, supported, and publicly accessible; confirm that the provider permits embedding.
+- **Twitch playback fails:** Twitch may require HTTPS and a matching parent domain. Local development domains and iframe policies can prevent playback.
+- **Dailymotion playback fails:** check the Player ID or use the official embed code where required.
+- **Shortcode appears as plain text:** insert it in a WordPress content area or block that processes shortcodes.
+- **Layout differs from the preview:** review the selected layout settings, theme styles, and viewport size.
 
-When reporting a problem, include the plugin, WordPress, and PHP versions, the selected layout, the video provider, and reproducible steps. Do not include passwords, private tokens, or other credentials.
+When reporting an issue, include the plugin version, WordPress version, PHP version, provider, selected layout, and reproducible steps. Do not include passwords, private tokens, or other credentials.
 
-## Support and contributions
+## Development and repository
 
-- **Issues and bug reports:** [GitHub Issues](https://github.com/mrwan-bg/kashida-video-embed/issues)
-- **Source repository:** [mrwan-bg/kashida-video-embed](https://github.com/mrwan-bg/kashida-video-embed)
-- **Releases and downloads:** [GitHub Releases](https://github.com/mrwan-bg/kashida-video-embed/releases)
+- [Source code](https://github.com/mrwan-bg/kashida-video-embed)
+- [Releases and downloads](https://github.com/mrwan-bg/kashida-video-embed/releases)
+- [Report a bug or request a feature](https://github.com/mrwan-bg/kashida-video-embed/issues)
+- [Screenshots directory](https://github.com/mrwan-bg/kashida-video-embed/tree/main/screenshots)
 
 ## Author
 
-**Kashida Media Services**  
-Website: [https://kashida.ly/](https://kashida.ly/)
+**Kashida Media Services** · [kashida.ly](https://kashida.ly/)
 
 ## License
 
