@@ -16,16 +16,31 @@ Embed videos by pasting supported public video URLs—without copying embed code
 
 ## Screenshots
 
-- [Plugin cover](screenshots/cover.jpg)
-- [Plugin icon](screenshots/plugin-icon.jpg)
-- [Video embed showcase](screenshots/kashida-video-embed-showcase.jpg)
-- [Layouts showcase](screenshots/kashida-video-layout-showcase.jpg)
-- [Features showcase](screenshots/video-embed-features-showcase.jpg)
-- [Responsive showcase](screenshots/fully-responsive-video-embed-showcase.jpg)
-- [WordPress UI mockup](screenshots/arabic-wordpress-video-embed-ui-mockup.jpg)
-- [Plugin overview](screenshots/kashida-video-embed-plugin-overview.jpg)
-- [Embed videos with ease](screenshots/embed-videos-with-ease.jpg)
-- [Support showcase](screenshots/kashida-plugin-support-showcase.jpg)
+![Kashida Video Embed cover](screenshots/cover.png)
+
+### Plugin overview
+![Kashida Video Embed plugin overview](screenshots/kashida-video-embed-plugin-overview.png)
+
+### Video embedding
+![Embed videos with ease](screenshots/embed-videos-with-ease.png)
+
+### Layout options
+![Video layout showcase](screenshots/kashida-video-layout-showcase.png)
+
+### Features
+![Video embed features](screenshots/video-embed-features-showcase.png)
+
+### Responsive design
+![Fully responsive video embed](screenshots/fully-responsive-video-embed-showcase.png)
+
+### Plugin showcase
+![Kashida Video Embed showcase](screenshots/kashida-video-embed-showcase.png)
+
+### Plugin icon
+![Kashida Video Embed icon](screenshots/plugin-icon.png)
+
+### Support
+![Kashida plugin support showcase](screenshots/kashida-plugin-support-showcase.png)
 
 ## Installation
 
