@@ -25,7 +25,7 @@ Suitable for educational websites, tutorials, news, reviews, portfolios, intervi
 
 ## Key features
 
-- **Four collection layouts:** Grid, List, Carousel, and Slider.
+- **Five collection layouts:** Grid, List, Carousel, Slider, and Featured + Playlist.
 - **Video library:** save and manage videos from supported public URLs or supported provider embed code.
 - **Reusable collections:** group videos and display them in multiple places.
 - **Shortcode generator:** choose available layout and display options and copy the generated shortcode.
@@ -92,7 +92,7 @@ Provider restrictions still apply. Some services require canonical URLs, a provi
 1. **Add a video:** open the plugin's administration area and paste a supported URL or provider embed code.
 2. **Save and manage videos:** use the video library to organize and find saved entries.
 3. **Create a collection:** select the videos you want to display together.
-4. **Choose a layout:** select Grid, List, Carousel, or Slider and adjust the available settings.
+4. **Choose a layout:** select Grid, List, Carousel, Slider, or Featured + Playlist and adjust the available settings.
 5. **Generate the shortcode:** use the collection generator and copy the shortcode it produces.
 6. **Publish:** insert the shortcode in a WordPress page, post, or compatible shortcode area. Use the Gutenberg block for supported individual video embeds.
 
