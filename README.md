@@ -8,6 +8,10 @@
 </h1>
 
 <p align="center">A WordPress plugin for embedding videos and displaying them in reusable, responsive layouts.</p>
+<p align="center">
+  <a href="https://wordpress.org/plugins/kashida-video-embed/"><img src="https://img.shields.io/badge/WordPress-View%20Plugin-21759B?logo=wordpress&logoColor=white" alt="WordPress — View Plugin"></a>
+  <a href="https://kashida.ly/wp-plugins/kashida-video-embed/"><img src="https://img.shields.io/badge/Kashida-View%20Plugin-6C4CF1" alt="Kashida — View Plugin"></a>
+</p>
 <p align="center"><strong>Version 1.4.22</strong> · <strong>WordPress 6.0+</strong> · <strong>PHP 7.4+</strong> · <strong>GPL-2.0-or-later</strong></p>
 
 <p align="center">
