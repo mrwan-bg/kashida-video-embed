@@ -15,6 +15,22 @@
  */
 if (!defined('ABSPATH')) exit;
 
+/**
+ * Add official plugin page links to the plugin row in WordPress admin.
+ */
+function kve_plugin_row_meta_links($links, $file) {
+    if (plugin_basename(__FILE__) !== $file) {
+        return $links;
+    }
+
+    $links[] = '<a href="https://wordpress.org/plugins/kashida-video-embed/" target="_blank" rel="noopener noreferrer">' . esc_html__('View plugin on WordPress.org', 'kashida-video-embed') . '</a>';
+    $links[] = '<a href="https://kashida.ly/wp-plugins/kashida-video-embed/" target="_blank" rel="noopener noreferrer">' . esc_html__('View plugin on Kashida website', 'kashida-video-embed') . '</a>';
+
+    return $links;
+}
+add_filter('plugin_row_meta', 'kve_plugin_row_meta_links', 10, 2);
+
+
 final class Kashida_Video_Embed {
     const VERSION = '1.4.22';
     const CPT = 'kve_video';
