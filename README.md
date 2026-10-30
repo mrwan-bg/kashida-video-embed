@@ -12,10 +12,10 @@
   <a href="https://wordpress.org/plugins/kashida-video-embed/"><img src="https://img.shields.io/badge/WordPress-View%20Plugin-21759B?logo=wordpress&logoColor=white" alt="WordPress — View Plugin"></a>
   <a href="https://kashida.ly/wp-plugins/kashida-video-embed/"><img src="https://img.shields.io/badge/Kashida-View%20Plugin-6C4CF1" alt="Kashida — View Plugin"></a>
 </p>
-<p align="center"><strong>Version 1.4.22</strong> · <strong>WordPress 6.0+</strong> · <strong>PHP 7.4+</strong> · <strong>GPL-2.0-or-later</strong></p>
+<p align="center"><strong>Version 1.4.23</strong> · <strong>WordPress 6.0+</strong> · <strong>PHP 7.4+</strong> · <strong>GPL-2.0-or-later</strong></p>
 
 <p align="center">
-  <a href="https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.22/kashida-video-embed-1.4.22.zip">Download v1.4.22</a> ·
+  <a href="https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.23/kashida-video-embed-1.4.23.zip">Download v1.4.23</a> ·
   <a href="https://github.com/mrwan-bg/kashida-video-embed/issues">Report an issue</a>
 </p>
 
@@ -107,14 +107,14 @@ Provider restrictions still apply. Some services require canonical URLs, a provi
 | WordPress minimum | 6.0 |
 | PHP minimum | 7.4 |
 | Tested up to | WordPress 7.1 |
-| Stable plugin version | 1.4.22 |
+| Stable plugin version | 1.4.23 |
 | License | GPL-2.0-or-later |
 
 Use a currently supported PHP release where your hosting environment and WordPress installation allow it. Back up your site and test updates on a staging site before deploying them to production.
 
 ## Installation
 
-1. Download [kashida-video-embed-1.4.22.zip](https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.22/kashida-video-embed-1.4.22.zip).
+1. Download [kashida-video-embed-1.4.23.zip](https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.23/kashida-video-embed-1.4.23.zip).
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
 3. Select the downloaded ZIP and click **Install Now**.
 4. Click **Activate Plugin**.
@@ -148,7 +148,24 @@ The plugin does not send analytics or video data to Kashida. Embedded third-part
 
 When reporting an issue, include the plugin version, WordPress version, PHP version, provider, selected layout, and reproducible steps. Do not include passwords, private tokens, or other credentials.
 
+## External services
+
+The plugin connects to third-party services only when the corresponding video provider is used or when a visitor loads an embedded player. It does not send analytics or video viewing data to Kashida.
+
+- **X (formerly Twitter):** For X post embeds, the WordPress server may request the public oEmbed endpoint at `publish.twitter.com/oembed` and the syndication endpoint at `cdn.syndication.twimg.com/tweet-result` to retrieve embed markup or public media URLs. The request includes the post URL or post ID. The visitor's browser may load `platform.twitter.com/widgets.js` and X-hosted embed content. [X Privacy Policy](https://x.com/en/privacy) · [X Terms](https://x.com/en/tos).
+- **YouTube:** When a YouTube video is displayed, the visitor's browser loads the YouTube player and related resources. The provider may receive the page URL, IP address, browser/device information, and cookies or similar identifiers according to the visitor's browser settings. [Google Privacy Policy](https://policies.google.com/privacy) · [YouTube Terms](https://www.youtube.com/t/terms).
+- **Vimeo:** When a Vimeo video is displayed, the visitor's browser connects to Vimeo's player and related resources. Vimeo may receive standard connection and device data. [Vimeo Privacy Policy](https://vimeo.com/privacy) · [Vimeo Terms](https://vimeo.com/terms).
+- **Facebook and Instagram (Meta):** When these embeds are displayed, the visitor's browser connects to Meta-hosted embed/player resources. Meta may receive standard connection, device, and page interaction data. [Meta Privacy Policy](https://www.facebook.com/privacy/policy/) · [Meta Terms](https://www.facebook.com/terms/).
+- **Dailymotion:** When a Dailymotion video is displayed, the visitor's browser loads the Dailymotion player and related resources. [Dailymotion Privacy Policy](https://www.dailymotion.com/legal/privacy) · [Dailymotion Terms](https://www.dailymotion.com/legal/terms).
+- **TikTok:** When a TikTok embed is displayed, the visitor's browser loads the TikTok player at `www.tiktok.com/player/v1/` and related resources. [TikTok Privacy Policy](https://www.tiktok.com/legal/page/row/privacy-policy/en) · [TikTok Terms](https://www.tiktok.com/legal/page/row/terms-of-service/en).
+- **Twitch:** When a Twitch video or clip is displayed, the visitor's browser loads the Twitch player or clip embed. Twitch requires the parent domain in the embed URL. [Twitch Privacy Notice](https://www.twitch.tv/p/en/legal/privacy-notice/) · [Twitch Terms](https://www.twitch.tv/p/en/legal/terms-of-service/).
+- **WordPress.tv:** When a WordPress.tv video is embedded, the visitor's browser connects to WordPress.tv and its video delivery provider. [WordPress.org Privacy Policy](https://wordpress.org/about/privacy/).
+
+These connections are initiated only for the relevant provider/embed. Third-party providers may process data under their own policies and may set cookies or similar technologies. The plugin does not control their data practices.
+
 ## Development and repository
+
+- **Collection generator source:** [assets/src/collection-generator.js](assets/src/collection-generator.js) is the readable source corresponding to the runtime file [assets/collection-generator.js](assets/collection-generator.js). Keep both files synchronized when making changes; no build step is required for this plain JavaScript asset.
 
 - [Source code](https://github.com/mrwan-bg/kashida-video-embed)
 - [Releases and downloads](https://github.com/mrwan-bg/kashida-video-embed/releases)
