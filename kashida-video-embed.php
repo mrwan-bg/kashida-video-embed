@@ -3,7 +3,7 @@
  * Plugin Name: Kashida Video Embed
  * Plugin URI: https://kashida.ly/wp-plugins/kashida-video-embed/
  * Description: Embed videos by pasting a supported video URL, without copying embed code.
- * Version: 1.4.22
+ * Version: 1.4.23
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Kashida Media Services
@@ -32,7 +32,7 @@ add_filter('plugin_row_meta', 'kve_plugin_row_meta_links', 10, 2);
 
 
 final class Kashida_Video_Embed {
-    const VERSION = '1.4.22';
+    const VERSION = '1.4.23';
     const CPT = 'kve_video';
     public function __construct() {
         add_action('init', array($this, 'register_content_type'));
