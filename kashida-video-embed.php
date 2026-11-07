@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Kashida Video Embed
  * Plugin URI: https://kashida.ly/wp-plugins/kashida-video-embed/
- * Description: Embed videos by pasting a supported video URL, without copying embed code.
+ * Description: Embed videos from supported share links or provider iframe codes, then organize them into responsive collections with shortcodes or a Gutenberg block.
  * Version: 1.4.24
  * Requires at least: 6.0
  * Requires PHP: 7.4
