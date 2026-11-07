@@ -15,7 +15,7 @@
 <p align="center"><strong>Version 1.4.24</strong> · <strong>WordPress 6.0+</strong> · <strong>PHP 7.4+</strong> · <strong>GPL-2.0-or-later</strong></p>
 
 <p align="center">
-  <a href="https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.24/kashida-video-embed-1.4.24.zip">Download v1.4.24</a> ·
+  <a href="https://github.com/mrwan-bg/kashida-video-embed/releases">View all releases</a> ·
   <a href="https://github.com/mrwan-bg/kashida-video-embed/issues">Report an issue</a>
 </p>
 
