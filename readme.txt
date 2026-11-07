@@ -12,8 +12,6 @@ Embed videos from share links or iframe codes, manage a video library, and creat
 
 == Description ==
 
-[![WordPress](https://img.shields.io/badge/WordPress-View%20Plugin-21759B?logo=wordpress&logoColor=white)](https://wordpress.org/plugins/kashida-video-embed/) [![Kashida](https://img.shields.io/badge/Kashida-View%20Plugin-6C4CF1)](https://kashida.ly/wp-plugins/kashida-video-embed/)
-
 Kashida Video Embed helps WordPress site editors embed videos using supported share URLs or provider embed code. It includes a searchable video library, shortcode generation, a Gutenberg block, responsive player display, aspect-ratio settings, and direct video file playback.
 
 Supported sources include YouTube, Vimeo, Facebook, X/Twitter, Dailymotion, TikTok, Twitch, Instagram, and WordPress.tv when embedding is available. Supported direct video files include MP4, WebM, and OGV, including files from the WordPress Media Library.
