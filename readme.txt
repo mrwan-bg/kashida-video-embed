@@ -4,11 +4,11 @@ Tags: video, embed, youtube, vimeo, shortcode
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.23
+Stable tag: 1.4.24
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Embed supported video URLs and manage reusable video collections with five responsive layouts, shortcodes, and a Gutenberg block.
+Embed videos from share links or iframe codes, manage a video library, and create responsive collections with shortcodes or a Gutenberg block.
 
 == Description ==
 
@@ -90,8 +90,14 @@ The plugin does not send analytics or video data to Kashida. Third-party players
 
 == Changelog ==
 
+= 1.4.24 =
+* Updated plugin metadata and release documentation for version 1.4.24.
+* Improved output escaping and internal identifier handling while retaining compatibility with existing video entries and shortcodes.
+* Clarified third-party provider connections and privacy-related documentation.
+* Reviewed the Arabic translation catalog and release metadata.
+* Corrected the readme short description to meet the WordPress.org 150-character limit.
+
 = 1.4.23 =
-* Updated the plugin version metadata to 1.4.23.
 * Addressed documentation and source-distribution requirements for the WordPress.org review.
 
 = 1.4.22 =
