@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) exit;
 /**
  * Add official plugin page links to the plugin row in WordPress admin.
  */
-function kve_plugin_row_meta_links($links, $file) {
+function kashida_video_embed_plugin_row_meta_links($links, $file) {
     if (plugin_basename(__FILE__) !== $file) {
         return $links;
     }
@@ -28,7 +28,7 @@ function kve_plugin_row_meta_links($links, $file) {
 
     return $links;
 }
-add_filter('plugin_row_meta', 'kve_plugin_row_meta_links', 10, 2);
+add_filter('plugin_row_meta', 'kashida_video_embed_plugin_row_meta_links', 10, 2);
 
 
 final class Kashida_Video_Embed {
