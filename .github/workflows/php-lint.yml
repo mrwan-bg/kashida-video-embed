@@ -39,3 +39,16 @@ jobs:
             echo "Checking ${file}"
             php -l "${file}"
           done
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' js_files < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
+          for file in "${js_files[@]}"; do
+            echo "Checking ${file}"
+            node --check "${file}"
+          done
+
+      - name: Validate block metadata
+        run: python -m json.tool block/block.json > /dev/null
