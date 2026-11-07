@@ -33,6 +33,7 @@ Suitable for educational websites, tutorials, news, reviews, portfolios, intervi
 - **Video library:** save and manage videos from supported public URLs or supported provider embed code.
 - **Reusable collections:** group videos and display them in multiple places.
 - **Shortcode generator:** choose available layout and display options and copy the generated shortcode.
+- **Gutenberg block:** add a video using the block editor and configure its URL and player options.
 - **Layout customization:** adjust supported colors, titles, spacing, columns, and other settings depending on the selected layout.
 - **Responsive presentation:** adapt the display to different screen sizes using available settings.
 - **Gutenberg block:** embed supported video content in the block editor.
