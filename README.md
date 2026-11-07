@@ -36,7 +36,6 @@ Suitable for educational websites, tutorials, news, reviews, portfolios, intervi
 - **Gutenberg block:** add a video using the block editor and configure its URL and player options.
 - **Layout customization:** adjust supported colors, titles, spacing, columns, and other settings depending on the selected layout.
 - **Responsive presentation:** adapt the display to different screen sizes using available settings.
-- **Gutenberg block:** embed supported video content in the block editor.
 - **Arabic translation:** Arabic translation files are included.
 - **Built-in Help section:** access usage guidance from the plugin administration area.
 - **Privacy-conscious behavior:** the plugin does not send analytics or video data to Kashida; third-party video players may connect to their own providers when loaded.
