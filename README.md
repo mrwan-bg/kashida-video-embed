@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="screenshots/cover.png" alt="Kashida Video Embed — WordPress video embedding plugin" width="100%">
+  <img src="screenshots/Kashida Video cover.png" alt="Kashida Video Embed — WordPress video embedding plugin" width="100%">
 </p>
 
 <h1 align="center">
-  <img src="screenshots/plugin-icon.png" alt="" width="38" height="38" align="center">
+  <img src="screenshots/Kashida Video Embed Icon.png" alt="" width="38" height="38" align="center">
   Kashida Video Embed
 </h1>
 
@@ -80,27 +80,27 @@ Suitable for educational websites, tutorials, news, reviews, portfolios, intervi
 <table>
   <tr>
     <td width="50%" align="center">
-      <a href="screenshots/video-embed-features-showcase.png"><img src="screenshots/video-embed-features-showcase.png" alt="Kashida Video Embed features overview" width="100%"></a>
+      <a href="screenshots/Video Embed Features Showcase.png"><img src="screenshots/Video Embed Features Showcase.png" alt="Kashida Video Embed features overview" width="100%"></a>
       <br><strong>Features overview</strong>
     </td>
     <td width="50%" align="center">
-      <a href="screenshots/kashida-video-layout-showcase.png"><img src="screenshots/kashida-video-layout-showcase.png" alt="Kashida Video Embed layout showcase" width="100%"></a>
+      <a href="screenshots/Kashida Video Layout Showcase.png"><img src="screenshots/Kashida Video Layout Showcase.png" alt="Kashida Video Embed layout showcase" width="100%"></a>
       <br><strong>Layout options</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <a href="screenshots/kashida-video-embed-showcase.png"><img src="screenshots/kashida-video-embed-showcase.png" alt="Kashida Video Embed plugin showcase" width="100%"></a>
+      <a href="screenshots/Embed Videos with Ease.png"><img src="screenshots/Embed Videos with Ease.png" alt="Kashida Video Embed plugin showcase" width="100%"></a>
       <br><strong>Plugin showcase</strong>
     </td>
     <td width="50%" align="center">
-      <a href="screenshots/fully-responsive-video-embed-showcase.png"><img src="screenshots/fully-responsive-video-embed-showcase.png" alt="Kashida Video Embed responsive display" width="100%"></a>
+      <a href="screenshots/Fully Responsive Video Embed Showcase.png"><img src="screenshots/Fully Responsive Video Embed Showcase.png" alt="Kashida Video Embed responsive display" width="100%"></a>
       <br><strong>Responsive display</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <a href="screenshots/kashida-video-embed-plugin-overview.png"><img src="screenshots/kashida-video-embed-plugin-overview.png" alt="Kashida Video Embed overview" width="100%"></a>
+      <a href="screenshots/Kashida Video Embed Plugin Overview.png"><img src="screenshots/Kashida Video Embed Plugin Overview.png" alt="Kashida Video Embed overview" width="100%"></a>
       <br><strong>Plugin overview</strong>
     </td>
     <td width="50%" align="center">
@@ -110,7 +110,7 @@ Suitable for educational websites, tutorials, news, reviews, portfolios, intervi
   </tr>
   <tr>
     <td width="50%" align="center">
-      <a href="screenshots/kashida-plugin-support-showcase.png"><img src="screenshots/kashida-plugin-support-showcase.png" alt="Kashida Video Embed help and support" width="100%"></a>
+      <a href="screenshots/Kashida Plugin Support Showcase.png"><img src="screenshots/Kashida Plugin Support Showcase.png" alt="Kashida Video Embed help and support" width="100%"></a>
       <br><strong>Help and support</strong>
     </td>
     <td width="50%" align="center"></td>
