@@ -11,7 +11,7 @@
 .kve-generator-step{border:1px solid #e2e4e7;border-radius:10px;padding:16px;margin:18px 0;background:#fff}.kve-generator-step h3{margin:0 0 12px}.kve-selection-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.kve-selection-actions span{color:#646970;font-size:13px;margin-inline-start:auto}#kve-generator-status{font-size:13px;color:#646970}#kve-gallery-output:disabled{background:#f6f7f7;color:#646970}@media(max-width:520px){.kve-selection-actions span{width:100%;margin-inline-start:0}}
 
 /* Keep WordPress' global footer below plugin content instead of overlaying controls. */
-body.toplevel_page_kve-videos #wpfooter, body.kve_page_kve-add-new #wpfooter, body.kve_page_kve-help #wpfooter,body.kve_page_kve-collections #wpfooter{position:static;margin-left:160px;padding:12px 20px 20px;clear:both;}
+body.toplevel_page_kashida-video-embed-videos #wpfooter, body.kashida-video-embed_page_kashida-video-embed-add-new #wpfooter, body.kashida-video-embed_page_kashida-video-embed-help #wpfooter,body.kashida-video-embed_page_kashida-video-embed-collections #wpfooter{position:static;margin-left:160px;padding:12px 20px 20px;clear:both;}
 .kve-wrap{padding-bottom:48px;overflow:visible;}
 .kve-gallery-generator{clear:both;position:relative;z-index:1;}
 .kve-generator-step{position:relative;clear:both;overflow:visible;margin:18px 0;padding:16px;border:1px solid #dcdcde;border-radius:10px;background:#fff;}
@@ -24,7 +24,7 @@ body.toplevel_page_kve-videos #wpfooter, body.kve_page_kve-add-new #wpfooter, bo
 .kve-gallery-show-title{align-self:center;}
 #kve-generator-status{display:inline-block;margin-left:8px;}
 @media(max-width:1100px){.kve-gallery-generator-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.kve-gallery-pick-list{grid-template-columns:repeat(2,minmax(0,1fr));}}
-@media(max-width:782px){body.toplevel_page_kve-videos #wpfooter,body.kve_page_kve-add-new #wpfooter,body.kve_page_kve-help #wpfooter,body.kve_page_kve-collections #wpfooter{margin-left:0;padding-left:12px}.kve-gallery-generator-grid,.kve-gallery-pick-list{grid-template-columns:1fr}.kve-selection-actions{align-items:flex-start}#kve-selection-count{width:100%;margin-left:0}}
+@media(max-width:782px){body.toplevel_page_kashida-video-embed-videos #wpfooter,body.kashida-video-embed_page_kashida-video-embed-add-new #wpfooter,body.kashida-video-embed_page_kashida-video-embed-help #wpfooter,body.kashida-video-embed_page_kashida-video-embed-collections #wpfooter{margin-left:0;padding-left:12px}.kve-gallery-generator-grid,.kve-gallery-pick-list{grid-template-columns:1fr}.kve-selection-actions{align-items:flex-start}#kve-selection-count{width:100%;margin-left:0}}
 .kve-layout-options{display:none;grid-column:1/-1;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:16px 18px;border:1px solid #dbe5f1;border-radius:12px;background:linear-gradient(135deg,#f8fbff,#fff);box-shadow:0 3px 12px rgba(15,23,42,.04)}
 .kve-layout-options strong{flex:0 0 100%;font-size:14px;color:#172b4d}
 .kve-layout-options p{margin:0;color:#52627a}
@@ -102,18 +102,18 @@ body.toplevel_page_kve-videos #wpfooter, body.kve_page_kve-add-new #wpfooter, bo
 
 
 /* v1.4.8: use the available WordPress admin width and improve toggle contrast */
-body.toplevel_page_kve-videos .kve-wrap,
-body.kve_page_kve-add-new .kve-wrap,
-body.kve_page_kve-help .kve-wrap,
-body.kve_page_kve-collections .kve-wrap {
+body.toplevel_page_kashida-video-embed-videos .kve-wrap,
+body.kashida-video-embed_page_kashida-video-embed-add-new .kve-wrap,
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap,
+body.kashida-video-embed_page_kashida-video-embed-collections .kve-wrap {
   width: calc(100% - 32px) !important;
   max-width: none !important;
   box-sizing: border-box;
 }
-body.toplevel_page_kve-videos .kve-card,
-body.kve_page_kve-add-new .kve-card,
-body.kve_page_kve-help .kve-card,
-body.kve_page_kve-collections .kve-card { max-width: none; }
+body.toplevel_page_kashida-video-embed-videos .kve-card,
+body.kashida-video-embed_page_kashida-video-embed-add-new .kve-card,
+body.kashida-video-embed_page_kashida-video-embed-help .kve-card,
+body.kashida-video-embed_page_kashida-video-embed-collections .kve-card { max-width: none; }
 .kve-d-layout {
   grid-template-columns: minmax(180px, 220px) minmax(0, 1fr) minmax(270px, 310px);
   gap: 16px;
@@ -142,8 +142,8 @@ body.kve_page_kve-collections .kve-card { max-width: none; }
   .kve-d-panel { grid-column: 1 / -1; }
 }
 @media (max-width: 782px) {
-  body.toplevel_page_kve-videos .kve-wrap, body.kve_page_kve-add-new .kve-wrap,
-  body.kve_page_kve-help .kve-wrap, body.kve_page_kve-collections .kve-wrap { width: calc(100% - 20px) !important; }
+  body.toplevel_page_kashida-video-embed-videos .kve-wrap, body.kashida-video-embed_page_kashida-video-embed-add-new .kve-wrap,
+  body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap, body.kashida-video-embed_page_kashida-video-embed-collections .kve-wrap { width: calc(100% - 20px) !important; }
   .kve-d-layout { grid-template-columns: minmax(0, 1fr); padding: 10px; }
 }
 
@@ -229,7 +229,7 @@ body.kve_page_kve-collections .kve-card { max-width: none; }
 
 
 /* v1.4.20: help page rebuilt with explicit columns to avoid uneven grid-row gaps. */
-body.kve_page_kve-help .kve-wrap .kve-help-guide {
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-guide {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: start;
@@ -238,14 +238,14 @@ body.kve_page_kve-help .kve-wrap .kve-help-guide {
   max-width: none;
   margin: 0;
 }
-body.kve_page_kve-help .kve-wrap .kve-help-column {
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 16px;
   min-width: 0;
 }
-body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card {
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column > .kve-card {
   width: 100%;
   min-width: 0;
   max-width: none;
@@ -253,29 +253,29 @@ body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card {
   box-sizing: border-box;
   overflow-wrap: anywhere;
 }
-body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card h2 {
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column > .kve-card h2 {
   margin: 0 0 12px;
   line-height: 1.4;
 }
-body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card p,
-body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card li {
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column > .kve-card p,
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column > .kve-card li {
   line-height: 1.65;
 }
-body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card p:last-child { margin-bottom: 0; }
-body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card ul,
-body.kve_page_kve-help .kve-wrap .kve-help-column > .kve-card ol {
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column > .kve-card p:last-child { margin-bottom: 0; }
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column > .kve-card ul,
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column > .kve-card ol {
   margin-block: 8px 12px;
   padding-inline-start: 24px;
 }
-body.kve_page_kve-help .kve-wrap .kve-help-column details {
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column details {
   border-bottom: 1px solid #dcdcde;
   padding: 10px 0;
 }
-body.kve_page_kve-help .kve-wrap .kve-help-column details:last-child { border-bottom: 0; }
-body.kve_page_kve-help .kve-wrap .kve-help-column summary { cursor: pointer; font-weight: 600; }
-body.kve_page_kve-help .kve-wrap .kve-help-column code { overflow-wrap: anywhere; white-space: normal; }
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column details:last-child { border-bottom: 0; }
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column summary { cursor: pointer; font-weight: 600; }
+body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-column code { overflow-wrap: anywhere; white-space: normal; }
 @media (max-width: 900px) {
-  body.kve_page_kve-help .kve-wrap .kve-help-guide { grid-template-columns: minmax(0, 1fr); }
+  body.kashida-video-embed_page_kashida-video-embed-help .kve-wrap .kve-help-guide { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* UI/UX refinement — visual layer only; no application logic changes. */
