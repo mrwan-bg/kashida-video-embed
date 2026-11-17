@@ -4,11 +4,11 @@ Tags: video, embed, youtube, vimeo, shortcode
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.24
+Stable tag: 1.4.25
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Embed videos from share links or iframe codes, manage a video library, and create responsive collections with shortcodes or a Gutenberg block.
+Embed videos from supported URLs or provider iframe codes, manage a searchable video library, and publish responsive collections with five layouts, shortcodes, and a Gutenberg block.
 
 == Description ==
 
@@ -87,6 +87,12 @@ Check that the required Player ID is configured, or use the official embed code 
 The plugin does not send analytics or video data to Kashida. Third-party players may connect to their own providers when loaded.
 
 == Changelog ==
+
+= 1.4.25 =
+* Replaced short admin page identifiers with plugin-specific names.
+* Added a bounded migration from the legacy video post type while preserving saved video IDs and metadata.
+* Updated plugin and Gutenberg block version metadata for the corrected WordPress.org release.
+* Adjusted the legacy-record migration query to allow WordPress query filters and resolve a Plugin Check performance finding.
 
 = 1.4.24 =
 * Updated plugin metadata and release documentation for version 1.4.24.
