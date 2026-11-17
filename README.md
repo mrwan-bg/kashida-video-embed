@@ -78,10 +78,7 @@ Suitable for educational websites, tutorials, news, reviews, portfolios, intervi
       <a href="screenshots/kashida-plugin-support-showcase.png"><img src="screenshots/kashida-plugin-support-showcase.png" alt="Kashida Video Embed help and support" width="100%"></a>
       <br><strong>Help and support</strong>
     </td>
-    <td width="50%" align="center">
-      <a href="screenshots/plugin-icon.png"><img src="screenshots/plugin-icon.png" alt="Kashida Video Embed plugin icon" width="45%"></a>
-      <br><strong>Plugin icon</strong>
-    </td>
+    <td width="50%" align="center"></td>
   </tr>
 </table>
 
