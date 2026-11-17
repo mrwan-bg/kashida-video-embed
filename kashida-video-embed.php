@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Kashida Video Embed
  * Plugin URI: https://kashida.ly/wp-plugins/kashida-video-embed/
- * Description: Embed videos from supported share links or provider iframe codes, then organize them into responsive collections with shortcodes or a Gutenberg block.
- * Version: 1.4.24
+ * Description: Embed videos from share links or iframe codes, manage a video library, and create responsive collections with shortcodes or a Gutenberg block.
+ * Version: 1.4.25
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Kashida Media Services
@@ -13,27 +13,14 @@
  * Text Domain: kashida-video-embed
  * Domain Path: /languages
  */
+namespace MrwanBG\KashidaVideoEmbed;
+
 if (!defined('ABSPATH')) exit;
 
-/**
- * Add official plugin page links to the plugin row in WordPress admin.
- */
-function kashida_video_embed_plugin_row_meta_links($links, $file) {
-    if (plugin_basename(__FILE__) !== $file) {
-        return $links;
-    }
-
-    $links[] = '<a href="https://wordpress.org/plugins/kashida-video-embed/" target="_blank" rel="noopener noreferrer">' . esc_html__('View plugin on WordPress.org', 'kashida-video-embed') . '</a>';
-    $links[] = '<a href="https://kashida.ly/wp-plugins/kashida-video-embed/" target="_blank" rel="noopener noreferrer">' . esc_html__('View plugin on Kashida website', 'kashida-video-embed') . '</a>';
-
-    return $links;
-}
-add_filter('plugin_row_meta', 'kashida_video_embed_plugin_row_meta_links', 10, 2);
-
-
-final class Kashida_Video_Embed {
-    const VERSION = '1.4.24';
-    const CPT = 'kve_video';
+final class Kashida_Video_Embed_Plugin {
+    const VERSION = '1.4.25';
+    const CPT = 'kashida_video';
+    const LEGACY_POST_TYPE = 'kve_video';
     public function __construct() {
         add_action('init', array($this, 'register_content_type'));
         add_action('init', array($this, 'register_block'));
@@ -41,25 +28,96 @@ final class Kashida_Video_Embed {
         add_action('admin_menu', array($this, 'admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'admin_assets'));
         add_action('wp_enqueue_scripts', array($this, 'frontend_assets'));
-        add_action('admin_post_kve_save_video', array($this, 'save_video'));
-        add_action('admin_post_kve_delete_video', array($this, 'delete_video'));
-        add_action('admin_post_kve_save_collection', array($this, 'save_collection'));
-        add_action('admin_post_kve_delete_collection', array($this, 'delete_collection'));
-        add_action('wp_ajax_kve_preview_video', array($this, 'ajax_preview_video'));
+        add_action('admin_post_kashida_video_embed_save_video', array($this, 'save_video'));
+        add_action('admin_post_kashida_video_embed_delete_video', array($this, 'delete_video'));
+        add_action('admin_post_kashida_video_embed_save_collection', array($this, 'save_collection'));
+        add_action('admin_post_kashida_video_embed_delete_collection', array($this, 'delete_collection'));
+        add_action('wp_ajax_kashida_video_embed_preview_video', array($this, 'ajax_preview_video'));
         add_action('wp_enqueue_scripts', array($this, 'provider_scripts'));
         add_shortcode('kashida_video_embed', array($this, 'shortcode'));
         add_shortcode('kashida_video_gallery', array($this, 'gallery_shortcode'));
         add_shortcode('kashida_video_collection', array($this, 'saved_collection_shortcode'));
     }
-    public function register_content_type() {
-        register_post_type(self::CPT, array('labels'=>array('name'=>__('Videos','kashida-video-embed'),'singular_name'=>__('Video','kashida-video-embed')),'public'=>false,'show_ui'=>false,'show_in_rest'=>false,'supports'=>array('title')));
+    /**
+     * Read the namespaced collection option, migrating the legacy option once.
+     * The legacy option is retained as a source only; existing collection IDs and
+     * shortcode references are preserved.
+     */
+    private function get_saved_collections() {
+        $collections = get_option('kashida_video_embed_saved_collections', null);
+        if (null === $collections) {
+            $legacy_collections = get_option('kve_saved_collections', false);
+            $collections = is_array($legacy_collections) ? $legacy_collections : array();
+            if (false !== $legacy_collections) {
+                update_option('kashida_video_embed_saved_collections', $collections, false);
+            }
+        }
+        return is_array($collections) ? $collections : array();
     }
+
+    public function register_content_type() {
+        $args = array('labels'=>array('name'=>__('Videos','kashida-video-embed'),'singular_name'=>__('Video','kashida-video-embed')),'public'=>false,'show_ui'=>false,'show_in_rest'=>false,'supports'=>array('title'));
+        register_post_type(self::CPT, $args);
+        $this->migrate_legacy_video_posts();
+    }
+
+    /**
+     * Move records from the former short post-type key to the current plugin-specific key.
+     * This preserves existing video IDs and their post meta, so saved shortcodes keep working.
+     * Only a limited batch is processed per request to avoid long-running upgrade requests.
+     */
+    private function migrate_legacy_video_posts() {
+        $migration_option = 'kashida_video_embed_legacy_video_migration_v1';
+        if (get_option($migration_option, false)) {
+            return;
+        }
+
+        // Legacy storage key retained only as a migration source; it is no longer registered.
+        $legacy_post_type = self::LEGACY_POST_TYPE;
+        $legacy_ids = get_posts(array(
+            'post_type'        => $legacy_post_type,
+            'post_status'      => 'any',
+            'numberposts'      => 100,
+            'fields'           => 'ids',
+            'orderby'          => 'ID',
+            'order'            => 'ASC',
+            'no_found_rows'    => true,
+            'suppress_filters' => false,
+        ));
+
+        if (empty($legacy_ids)) {
+            update_option($migration_option, 1, false);
+            return;
+        }
+
+        foreach ($legacy_ids as $legacy_id) {
+            $updated = wp_update_post(array(
+                'ID'        => absint($legacy_id),
+                'post_type' => self::CPT,
+            ), true);
+
+            if (is_wp_error($updated) || !$updated) {
+                // Retry remaining records on a later request rather than marking migration complete.
+                return;
+            }
+        }
+    }
+
+    private function get_video_post_types() {
+        // The legacy key is queried only while old records are being migrated; it is never registered.
+        return array(self::CPT, self::LEGACY_POST_TYPE);
+    }
+
+    private function is_video_post($post) {
+        return $post instanceof \WP_Post && in_array($post->post_type, $this->get_video_post_types(), true);
+    }
+
     public function block_editor_assets() {
-        wp_register_script('kve-block-editor', plugin_dir_url(__FILE__) . 'block/editor.js', array('wp-blocks','wp-element','wp-block-editor','wp-components'), self::VERSION, true);
+        wp_register_script('kashida-video-embed-block-editor', plugin_dir_url(__FILE__) . 'block/editor.js', array('wp-blocks','wp-element','wp-block-editor','wp-components'), self::VERSION, true);
     }
     public function register_block() {
         if (function_exists('register_block_type')) {
-            wp_register_script('kve-block-editor', plugin_dir_url(__FILE__) . 'block/editor.js', array('wp-blocks','wp-element','wp-block-editor','wp-components'), self::VERSION, true);
+            wp_register_script('kashida-video-embed-block-editor', plugin_dir_url(__FILE__) . 'block/editor.js', array('wp-blocks','wp-element','wp-block-editor','wp-components'), self::VERSION, true);
             register_block_type(__DIR__ . '/block', array('render_callback'=>array($this,'render_block')));
         }
     }
@@ -69,14 +127,14 @@ final class Kashida_Video_Embed {
         return $this->render_video($url, $ratio, !empty($attributes['controls']), !empty($attributes['lazy']));
     }
     public function admin_menu() {
-        add_menu_page(__('Kashida Video Embed','kashida-video-embed'), __('Kashida Video Embed','kashida-video-embed'), 'edit_posts', 'kve-videos', array($this,'videos_page'), 'dashicons-video-alt3', 58);
-        add_submenu_page('kve-videos', __('All Videos','kashida-video-embed'), __('All Videos','kashida-video-embed'), 'edit_posts', 'kve-videos', array($this,'videos_page'));
-        add_submenu_page('kve-videos', __('Add New','kashida-video-embed'), __('Add New','kashida-video-embed'), 'edit_posts', 'kve-add-new', array($this,'add_page'));
-        add_submenu_page('kve-videos', __('Video Collections','kashida-video-embed'), __('Video Collections','kashida-video-embed'), 'edit_posts', 'kve-collections', array($this,'collections_page'));
-        add_submenu_page('kve-videos', __('Help','kashida-video-embed'), __('Help','kashida-video-embed'), 'edit_posts', 'kve-help', array($this,'help_page'));
+        add_menu_page(__('Kashida Video Embed','kashida-video-embed'), __('Kashida Video Embed','kashida-video-embed'), 'edit_posts', 'kashida-video-embed-videos', array($this,'videos_page'), 'dashicons-video-alt3', 58);
+        add_submenu_page('kashida-video-embed-videos', __('All Videos','kashida-video-embed'), __('All Videos','kashida-video-embed'), 'edit_posts', 'kashida-video-embed-videos', array($this,'videos_page'));
+        add_submenu_page('kashida-video-embed-videos', __('Add New','kashida-video-embed'), __('Add New','kashida-video-embed'), 'edit_posts', 'kashida-video-embed-add-new', array($this,'add_page'));
+        add_submenu_page('kashida-video-embed-videos', __('Video Collections','kashida-video-embed'), __('Video Collections','kashida-video-embed'), 'edit_posts', 'kashida-video-embed-collections', array($this,'collections_page'));
+        add_submenu_page('kashida-video-embed-videos', __('Help','kashida-video-embed'), __('Help','kashida-video-embed'), 'edit_posts', 'kashida-video-embed-help', array($this,'help_page'));
     }
     public function frontend_assets() {
-        wp_enqueue_style('kve-frontend', plugin_dir_url(__FILE__) . 'assets/frontend.css', array(), self::VERSION);
+        wp_enqueue_style('kashida-video-embed-frontend', plugin_dir_url(__FILE__) . 'assets/frontend.css', array(), self::VERSION);
         global $post;
         if ($post instanceof WP_Post && (has_shortcode($post->post_content, 'kashida_video_gallery') || has_shortcode($post->post_content, 'kashida_video_collection'))) wp_enqueue_script('jquery');
         $gallery_js = <<<'KVEJS'
@@ -85,22 +143,26 @@ KVEJS;
         wp_add_inline_script('jquery-core', $gallery_js);
     }
     public function admin_assets($hook) {
-        if (strpos((string)$hook, 'kve-') === false) return;
-        wp_enqueue_style('kve-admin', plugin_dir_url(__FILE__) . 'assets/admin.css', array(), self::VERSION);
+        if (strpos((string)$hook, 'kashida-video-embed-') === false) return;
+        wp_enqueue_style('kashida-video-embed-admin', plugin_dir_url(__FILE__) . 'assets/admin.css', array(), self::VERSION);
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin page routing; this value does not trigger a state change.
         if (!isset($_GET['page'])) return;
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin page routing; sanitized below and used only to enqueue assets.
         $page = sanitize_key(wp_unslash($_GET['page']));
-        if ($page === 'kve-collections') wp_enqueue_style('kve-frontend', plugin_dir_url(__FILE__) . 'assets/frontend.css', array(), self::VERSION);
-        if ($page === 'kve-videos') {
+        if ($page === 'kashida-video-embed-collections') wp_enqueue_style('kashida-video-embed-frontend', plugin_dir_url(__FILE__) . 'assets/frontend.css', array(), self::VERSION);
+        if ($page === 'kashida-video-embed-videos') {
             wp_enqueue_script('jquery');
             $library_js = <<<'KVELIBRARYJS'
 jQuery(function($){var table=$('.kve-video-library-table');if(!table.length)return;var rows=table.find('tbody tr');var bar=$('<div class="kve-library-tools"><label for="kve-library-search">Search videos</label> <input type="search" id="kve-library-search" class="regular-text" placeholder="Search title, URL or shortcode…"> <label for="kve-library-sort">Sort</label> <select id="kve-library-sort"><option value="title-asc">Title A–Z</option><option value="title-desc">Title Z–A</option><option value="newest">Newest first</option></select></div>');table.before(bar);$('#kve-library-search').on('input',function(){var q=$(this).val().toLowerCase();rows.each(function(){$(this).toggle($(this).text().toLowerCase().indexOf(q)!==-1);});});$('#kve-library-sort').on('change',function(){var v=$(this).val(),sorted=rows.get().sort(function(a,b){var A=$(a).find('td').eq(0).text().toLowerCase(),B=$(b).find('td').eq(0).text().toLowerCase();if(v==='title-asc')return A.localeCompare(B);if(v==='title-desc')return B.localeCompare(A);return $(b).data('created')-$(a).data('created');});$.each(sorted,function(_,r){table.find('tbody').append(r);});rows=table.find('tbody tr');});table.on('click','.kve-copy-shortcode',function(){var b=$(this),txt=b.data('shortcode');var t=$('<textarea>').val(txt).appendTo('body').select();var ok=document.execCommand('copy');t.remove();b.text(ok?'Copied':'Copy failed');setTimeout(function(){b.text('Copy')},1200);});});
 KVELIBRARYJS;
             wp_add_inline_script('jquery', $library_js, 'after');
         }
-        if ($page === 'kve-collections') {
-            wp_enqueue_script('kve-collection-generator', plugin_dir_url(__FILE__) . 'assets/collection-generator.js', array(), self::VERSION, true);
+        if ($page === 'kashida-video-embed-collections') {
+            wp_enqueue_script('kashida-video-embed-collection-generator', plugin_dir_url(__FILE__) . 'assets/collection-generator.js', array(), self::VERSION, true);
+        }
+        if ($page === 'kashida-video-embed-add-new') {
+            wp_register_script('kashida-video-embed-add-video-inline', false, array(), self::VERSION, true);
+            wp_enqueue_script('kashida-video-embed-add-video-inline');
         }
     }
     private function header($subtitle = '') {
@@ -110,18 +172,18 @@ KVELIBRARYJS;
     public function videos_page() {
         if (!current_user_can('edit_posts')) return;
         $this->header(__('Manage videos and reuse them anywhere on your site.','kashida-video-embed'));
-        echo '<div class="kve-toolbar"><a class="button button-primary" href="'.esc_url(admin_url('admin.php?page=kve-add-new')).'">'.esc_html__('Add New Video','kashida-video-embed').'</a> <a class="button" href="'.esc_url(admin_url('admin.php?page=kve-help')).'">'.esc_html__('Open Help Guide','kashida-video-embed').'</a></div>';
-        $items = get_posts(array('post_type'=>self::CPT,'post_status'=>'publish','numberposts'=>-1,'orderby'=>'date','order'=>'DESC'));
+        echo '<div class="kve-toolbar"><a class="button button-primary" href="'.esc_url(admin_url('admin.php?page=kashida-video-embed-add-new')).'">'.esc_html__('Add New Video','kashida-video-embed').'</a> <a class="button" href="'.esc_url(admin_url('admin.php?page=kashida-video-embed-help')).'">'.esc_html__('Open Help Guide','kashida-video-embed').'</a></div>';
+        $items = get_posts(array('post_type'=>$this->get_video_post_types(),'post_status'=>'publish','numberposts'=>-1,'orderby'=>'date','order'=>'DESC'));
         echo '<div class="kve-card"><h2>'.esc_html__('Video Library','kashida-video-embed').'</h2><p>'.esc_html__('Search your saved videos, copy a shortcode, edit settings or delete an item.','kashida-video-embed').'</p><table class="widefat striped kve-video-library-table"><thead><tr><th>'.esc_html__('Title','kashida-video-embed').'</th><th>'.esc_html__('Video URL','kashida-video-embed').'</th><th>'.esc_html__('Shortcode','kashida-video-embed').'</th><th>'.esc_html__('Actions','kashida-video-embed').'</th></tr></thead><tbody>';
         if (!$items) echo '<tr><td colspan="4">'.esc_html__('No videos yet. Add your first video using its URL.','kashida-video-embed').'</td></tr>';
         foreach ($items as $item) {
             $url=get_post_meta($item->ID,'_kve_url',true);
             $shortcode='[kashida_video_embed id="'.absint($item->ID).'"]';
-            $delete_url=wp_nonce_url(add_query_arg(array('action'=>'kve_delete_video','video_id'=>absint($item->ID)),admin_url('admin-post.php')),'kve_delete_video_'.absint($item->ID));
-            echo '<tr data-created="'.esc_attr((string)get_post_time('U',true,$item)).'"><td>'.esc_html($item->post_title).'</td><td><a href="'.esc_url($url). '" target="_blank" rel="noopener noreferrer">'.esc_html(wp_trim_words($url,8,'…')).'</a></td><td><code>'.esc_html($shortcode).'</code> <button type="button" class="button button-small kve-copy-shortcode" data-shortcode="'.esc_attr($shortcode).'">'.esc_html__('Copy','kashida-video-embed').'</button></td><td><a href="'.esc_url(add_query_arg(array('page'=>'kve-add-new','edit'=>absint($item->ID)),admin_url('admin.php'))).'">'.esc_html__('Edit','kashida-video-embed').'</a> | <a class="kve-delete-video" href="'.esc_url($delete_url).'" onclick="return confirm(&quot;Delete this video? Shortcodes using it will stop displaying. This action cannot be undone.&quot;)">'.esc_html__('Delete','kashida-video-embed').'</a></td></tr>';
+            $delete_url=wp_nonce_url(add_query_arg(array('action'=>'kashida_video_embed_delete_video','video_id'=>absint($item->ID)),admin_url('admin-post.php')),'kashida_video_embed_delete_video_'.absint($item->ID));
+            echo '<tr data-created="'.esc_attr((string)get_post_time('U',true,$item)).'"><td>'.esc_html($item->post_title).'</td><td><a href="'.esc_url($url). '" target="_blank" rel="noopener noreferrer">'.esc_html(wp_trim_words($url,8,'…')).'</a></td><td><code>'.esc_html($shortcode).'</code> <button type="button" class="button button-small kve-copy-shortcode" data-shortcode="'.esc_attr($shortcode).'">'.esc_html__('Copy','kashida-video-embed').'</button></td><td><a href="'.esc_url(add_query_arg(array('page'=>'kashida-video-embed-add-new','edit'=>absint($item->ID)),admin_url('admin.php'))).'">'.esc_html__('Edit','kashida-video-embed').'</a> | <a class="kve-delete-video" href="'.esc_url($delete_url).'" onclick="return confirm(&quot;Delete this video? Shortcodes using it will stop displaying. This action cannot be undone.&quot;)">'.esc_html__('Delete','kashida-video-embed').'</a></td></tr>';
         }
         echo '</tbody></table></div>';
-        echo '<div class="kve-card"><h2>'.esc_html__('Next step','kashida-video-embed').'</h2><p>'.esc_html__('Use Video Collections to select saved videos and generate a collection shortcode.','kashida-video-embed').'</p><p><a class="button button-primary" href="'.esc_url(admin_url('admin.php?page=kve-collections')).'">'.esc_html__('Open Video Collections','kashida-video-embed').'</a></p></div>';
+        echo '<div class="kve-card"><h2>'.esc_html__('Next step','kashida-video-embed').'</h2><p>'.esc_html__('Use Video Collections to select saved videos and generate a collection shortcode.','kashida-video-embed').'</p><p><a class="button button-primary" href="'.esc_url(admin_url('admin.php?page=kashida-video-embed-collections')).'">'.esc_html__('Open Video Collections','kashida-video-embed').'</a></p></div>';
         $this->footer();
     }
 
@@ -131,6 +193,32 @@ KVELIBRARYJS;
     private function d_stepper($id,$label,$min,$max,$val) { return '<div class="kve-d-row kve-d-stepper-row"><span>'.esc_html($label).'</span><div class="kve-d-stepper" data-min="'.(int)$min.'" data-max="'.(int)$max.'"><button type="button" data-step="-1" aria-label="'.esc_attr__('Decrease','kashida-video-embed').'">&minus;</button><input type="text" id="'.esc_attr($id).'" value="'.(int)$val.'" readonly><button type="button" data-step="1" aria-label="'.esc_attr__('Increase','kashida-video-embed').'">+</button></div></div>'; }
     private function d_color($id,$label,$val,$layouts,$label_alt='') { return '<div class="kve-d-row kve-d-color"'.$this->d_attr_layouts($layouts).'><label for="'.esc_attr($id).'" data-alt="'.esc_attr($label_alt).'" data-base="'.esc_attr($label).'">'.esc_html($label).'</label><span class="kve-d-colorwrap"><input type="text" class="kve-d-hex" data-for="'.esc_attr($id).'" maxlength="7" value="'.esc_attr(strtoupper($val)).'" spellcheck="false"><input type="color" id="'.esc_attr($id).'" value="'.esc_attr($val).'"></span></div>'; }
     private function d_group($title,$layouts,$body,$alt_titles='') { return '<section class="kve-d-group"'.$this->d_attr_layouts($layouts).($alt_titles?' data-alt-titles="'.esc_attr($alt_titles).'"':'').'><h5>'.esc_html($title).'</h5>'.$body.'</section>'; }
+    /**
+     * Allow only the HTML elements and attributes used by the collection designer.
+     * Values are escaped when assembled and are filtered again at the output boundary.
+     */
+    private function designer_allowed_html() {
+        $tags = array(
+            'section' => array('class' => true, 'data-layouts' => true),
+            'div' => array('class' => true, 'id' => true, 'data-layout' => true, 'data-layouts' => true, 'data-min' => true, 'data-max' => true, 'data-alt-titles' => true),
+            'nav' => array('class' => true, 'aria-label' => true),
+            'aside' => array('class' => true),
+            'h3' => array(), 'h4' => array(), 'h5' => array(), 'strong' => array(), 'span' => array('class' => true, 'id' => true, 'data-alt' => true, 'data-base' => true),
+            'small' => array(), 'p' => array('class' => true), 'output' => array('for' => true, 'data-unit' => true), 'label' => array('for' => true, 'class' => true),
+            'button' => array('type' => true, 'class' => true, 'id' => true, 'data-layout' => true, 'data-step' => true, 'aria-pressed' => true, 'aria-label' => true),
+            'input' => array('type' => true, 'id' => true, 'value' => true, 'checked' => true, 'hidden' => true, 'min' => true, 'max' => true, 'step' => true, 'readonly' => true, 'maxlength' => true, 'spellcheck' => true),
+            'select' => array('id' => true, 'class' => true),
+            'option' => array('value' => true, 'selected' => true),
+            'code' => array('id' => true, 'class' => true),
+            'i' => array('class' => true, 'aria-hidden' => true),
+        );
+        foreach ($tags as $tag => $attributes) {
+            $tags[$tag]['style'] = true;
+            $tags[$tag]['data-*'] = true;
+        }
+        return $tags;
+    }
+
     private function render_designer($editing) {
         $new = empty($editing);
         $g = function($k,$n,$o=null) use ($editing,$new) { if (isset($editing[$k]) && $editing[$k] !== '') return $editing[$k]; return $new ? $n : ($o===null ? $n : $o); };
@@ -178,12 +266,11 @@ KVELIBRARYJS;
             $this->d_range('kve-gallery-gap',__('Spacing','kashida-video-embed'),0,48,$gap,'px','grid list carousel featured_playlist').
             $this->d_range('kve-gallery-radius',__('Border radius','kashida-video-embed'),0,32,$radius,'px','grid list carousel slider featured_playlist'));
         $o .= '</aside></div></div></section>';
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $o is assembled from escaped form fields and HTML returned by the plugin's renderer.
-        echo $o;
+        echo wp_kses($o, $this->designer_allowed_html());
     }
     public function collections_page() {
         if (!current_user_can('edit_posts')) return;
-        $collections = get_option('kve_saved_collections', array());
+        $collections = $this->get_saved_collections();
         if (!is_array($collections)) $collections = array();
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only edit selection; saving still requires a separate verified form nonce.
         $edit_id = isset($_GET['edit_collection']) ? absint($_GET['edit_collection']) : 0;
@@ -199,13 +286,13 @@ KVELIBRARYJS;
             echo '<table class="widefat striped"><thead><tr><th>'.esc_html__('Collection','kashida-video-embed').'</th><th>'.esc_html__('Videos','kashida-video-embed').'</th><th>'.esc_html__('Shortcode','kashida-video-embed').'</th><th>'.esc_html__('Actions','kashida-video-embed').'</th></tr></thead><tbody>';
             foreach ($collections as $cid=>$c) {
                 $sc='[kashida_video_collection id="'.absint($cid).'"]';
-                $delete=wp_nonce_url(add_query_arg(array('action'=>'kve_delete_collection','collection_id'=>absint($cid)),admin_url('admin-post.php')),'kve_delete_collection_'.absint($cid));
-                echo '<tr><td>'.esc_html($c['name'] ?? ('Collection '.absint($cid))).'</td><td>'.count($c['ids'] ?? array()).'</td><td><code>'.esc_html($sc).'</code></td><td><a class="button button-small" href="'.esc_url(add_query_arg(array('page'=>'kve-collections','edit_collection'=>absint($cid)),admin_url('admin.php'))).'">'.esc_html__('Edit','kashida-video-embed').'</a> <a class="button button-small kve-copy-shortcode" data-shortcode="'.esc_attr($sc).'" href="#">'.esc_html__('Copy shortcode','kashida-video-embed').'</a> <a class="button button-small" onclick="return confirm(\''.esc_js(__('Delete this collection? Existing shortcodes will no longer display it.','kashida-video-embed')).'\')" href="'.esc_url($delete).'">'.esc_html__('Delete','kashida-video-embed').'</a></td></tr>';
+                $delete=wp_nonce_url(add_query_arg(array('action'=>'kashida_video_embed_delete_collection','collection_id'=>absint($cid)),admin_url('admin-post.php')),'kashida_video_embed_delete_collection_'.absint($cid));
+                echo '<tr><td>'.esc_html($c['name'] ?? ('Collection '.absint($cid))).'</td><td>'.count($c['ids'] ?? array()).'</td><td><code>'.esc_html($sc).'</code></td><td><a class="button button-small" href="'.esc_url(add_query_arg(array('page'=>'kashida-video-embed-collections','edit_collection'=>absint($cid)),admin_url('admin.php'))).'">'.esc_html__('Edit','kashida-video-embed').'</a> <a class="button button-small kve-copy-shortcode" data-shortcode="'.esc_attr($sc).'" href="#">'.esc_html__('Copy shortcode','kashida-video-embed').'</a> <a class="button button-small" onclick="return confirm(\''.esc_js(__('Delete this collection? Existing shortcodes will no longer display it.','kashida-video-embed')).'\')" href="'.esc_url($delete).'">'.esc_html__('Delete','kashida-video-embed').'</a></td></tr>';
             }
             echo '</tbody></table>';
         } else echo '<p>'.esc_html__('No saved collections yet. Create your first collection below.','kashida-video-embed').'</p>';
         echo '</div>';
-        $items = get_posts(array('post_type'=>self::CPT,'post_status'=>'publish','numberposts'=>-1,'orderby'=>'date','order'=>'DESC'));
+        $items = get_posts(array('post_type'=>$this->get_video_post_types(),'post_status'=>'publish','numberposts'=>-1,'orderby'=>'date','order'=>'DESC'));
         echo '<div class="kve-card kve-gallery-generator"><h2>'.($edit_id ? esc_html__('Edit collection','kashida-video-embed') : esc_html__('Create a collection','kashida-video-embed')).'</h2>';
         echo '<p>'.esc_html__('Select videos, customize the layout, save the collection, then copy its permanent shortcode.','kashida-video-embed').'</p>';
         echo '<label class="kve-collection-name-label">'.esc_html__('Collection name','kashida-video-embed').'<input type="text" id="kve-collection-name" class="regular-text" value="'.esc_attr($editing['name'] ?? '').'" placeholder="'.esc_attr__('e.g. Tutorials','kashida-video-embed').'" required></label>';
@@ -214,44 +301,44 @@ KVELIBRARYJS;
             foreach ($items as $item) echo '<label><input type="checkbox" class="kve-gallery-pick" value="'.absint($item->ID).'" '.checked(in_array((int)$item->ID,$selected,true),true,false).'> '.esc_html($item->post_title).' <span>#'.absint($item->ID).'</span></label>';
             echo '</div></section>';
             $this->render_designer($editing);
-            echo '<section class="kve-generator-step"><h3>'.esc_html__('Step 3 — Save and copy','kashida-video-embed').'</h3><p><button type="button" class="button button-primary" id="kve-gallery-generate">'.esc_html__('Generate shortcode','kashida-video-embed').'</button> <span id="kve-generator-status" role="status">'.esc_html__('Choose videos and options, then generate the collection settings.','kashida-video-embed').'</span></p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'" id="kve-save-collection-form"><input type="hidden" name="action" value="kve_save_collection"><input type="hidden" name="collection_id" value="'.absint($edit_id).'">';
-            wp_nonce_field('kve_save_collection','kve_collection_nonce');
+            echo '<section class="kve-generator-step"><h3>'.esc_html__('Step 3 — Save and copy','kashida-video-embed').'</h3><p><button type="button" class="button button-primary" id="kve-gallery-generate">'.esc_html__('Generate shortcode','kashida-video-embed').'</button> <span id="kve-generator-status" role="status">'.esc_html__('Choose videos and options, then generate the collection settings.','kashida-video-embed').'</span></p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'" id="kve-save-collection-form"><input type="hidden" name="action" value="kashida_video_embed_save_collection"><input type="hidden" name="collection_id" value="'.absint($edit_id).'">';
+            wp_nonce_field('kashida_video_embed_save_collection','kashida_video_embed_collection_nonce');
             echo '<input type="hidden" name="collection_name" id="kve-save-name"><input type="hidden" name="collection_data" id="kve-save-data"><button type="submit" class="button button-primary" id="kve-save-collection" disabled>'.($edit_id ? esc_html__('Update collection','kashida-video-embed') : esc_html__('Save collection','kashida-video-embed')).'</button> <label for="kve-gallery-output">'.esc_html__('Permanent shortcode','kashida-video-embed').'</label><div class="kve-url-row"><input id="kve-gallery-output" class="large-text" readonly disabled placeholder="'.esc_attr__('Save the collection to get its permanent shortcode.','kashida-video-embed').'"/><button type="button" class="button" id="kve-gallery-copy" disabled>'.esc_html__('Copy shortcode','kashida-video-embed').'</button></div></form><p class="description">'.esc_html__('The collection shortcode uses a stable ID. Editing the saved collection updates its display without changing the shortcode already pasted into pages.','kashida-video-embed').'</p></section>';
-        } else echo '<p>'.esc_html__('Add videos to the library before creating a collection.','kashida-video-embed').'</p><p><a class="button button-primary" href="'.esc_url(admin_url('admin.php?page=kve-add-new')).'">'.esc_html__('Add New Video','kashida-video-embed').'</a></p>';
+        } else echo '<p>'.esc_html__('Add videos to the library before creating a collection.','kashida-video-embed').'</p><p><a class="button button-primary" href="'.esc_url(admin_url('admin.php?page=kashida-video-embed-add-new')).'">'.esc_html__('Add New Video','kashida-video-embed').'</a></p>';
         echo '</div>';
-        echo '<script>window.kveEditingCollection='.wp_json_encode(array('id'=>$edit_id,'data'=>$editing)).';</script>';
-        echo '<script>document.addEventListener("click",function(e){var b=e.target.closest(".kve-copy-shortcode");if(!b)return;e.preventDefault();var t=document.createElement("textarea");t.value=b.dataset.shortcode;document.body.appendChild(t);t.select();try{document.execCommand("copy");b.textContent="Copied";}catch(err){b.textContent="Select and copy";}t.remove();});</script>';
+        wp_add_inline_script('kashida-video-embed-collection-generator', 'window.kveEditingCollection=' . wp_json_encode(array('id'=>$edit_id,'data'=>$editing)) . ';', 'before');
+        wp_add_inline_script('kashida-video-embed-collection-generator', 'document.addEventListener("click",function(e){var b=e.target.closest(".kve-copy-shortcode");if(!b)return;e.preventDefault();var t=document.createElement("textarea");t.value=b.dataset.shortcode;document.body.appendChild(t);t.select();try{document.execCommand("copy");b.textContent="Copied";}catch(err){b.textContent="Select and copy";}t.remove();});', 'after');
         $this->footer();
     }
     public function save_collection() {
-        if (!current_user_can('edit_posts') || !isset($_POST['kve_collection_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['kve_collection_nonce'])),'kve_save_collection')) wp_die(esc_html__('You are not allowed to save this collection.','kashida-video-embed'));
+        if (!current_user_can('edit_posts') || !isset($_POST['kashida_video_embed_collection_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['kashida_video_embed_collection_nonce'])),'kashida_video_embed_save_collection')) wp_die(esc_html__('You are not allowed to save this collection.','kashida-video-embed'));
         // This field is JSON, so sanitizing the raw JSON string could corrupt its structure. The nonce is verified above; every decoded field is validated/sanitized below before storage.
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON is decoded and each field is allow-listed or sanitized before use.
         $collection_json = isset($_POST['collection_data']) ? wp_unslash($_POST['collection_data']) : '';
         $data_raw = $collection_json !== '' ? json_decode($collection_json, true, 32) : null;
         if (!is_array($data_raw)) wp_die(esc_html__('Invalid collection settings. Please generate the settings again.','kashida-video-embed'));
         $ids = array_values(array_unique(array_filter(array_map('absint',(array)($data_raw['ids'] ?? array())))));
-        $valid = array(); foreach($ids as $id){$p=get_post($id);if($p && $p->post_type===self::CPT && $p->post_status==='publish')$valid[]=$id;}
+        $valid = array(); foreach($ids as $id){$p=get_post($id);if($this->is_video_post($p) && $p->post_status==='publish')$valid[]=$id;}
         if (!$valid) wp_die(esc_html__('Select at least one saved video.','kashida-video-embed'));
         $name = sanitize_text_field(wp_unslash($_POST['collection_name'] ?? ''));
         if ($name==='') $name = __('Video collection','kashida-video-embed');
-        $collections = get_option('kve_saved_collections',array()); if(!is_array($collections))$collections=array();
+        $collections = $this->get_saved_collections(); if(!is_array($collections))$collections=array();
         $id=absint($_POST['collection_id'] ?? 0);
-        if(!$id || !isset($collections[$id])) { $id=(int)get_option('kve_next_collection_id',1); if($id<1)$id=1; update_option('kve_next_collection_id',$id+1,false); }
+        if(!$id || !isset($collections[$id])) { $id=(int)get_option('kashida_video_embed_next_collection_id', get_option('kve_next_collection_id',1)); if($id<1)$id=1; update_option('kashida_video_embed_next_collection_id',$id+1,false); }
         $collections[$id]=array('name'=>$name,'ids'=>$valid,'layout'=>in_array(($data_raw['layout']??''),array('grid','list','carousel','slider','featured_playlist'),true)?$data_raw['layout']:'grid','columns'=>max(1,min(5,absint($data_raw['columns']??3))),'gap'=>max(0,min(48,absint($data_raw['gap']??16))),'overlay'=>sanitize_hex_color($data_raw['overlay']??'')?:'#000000','overlay_opacity'=>max(0,min(100,absint($data_raw['overlay_opacity']??0))),'text_color'=>sanitize_hex_color($data_raw['text_color']??'')?:'#ffffff','title_size'=>max(10,min(40,absint($data_raw['title_size']??16))),'show_title'=>!empty($data_raw['show_title'])?'yes':'no','surface_color'=>sanitize_hex_color($data_raw['surface_color']??'')?:'#ffffff','show_arrows'=>!empty($data_raw['show_arrows'])?'yes':'no','show_dots'=>!empty($data_raw['show_dots'])?'yes':'no','autoplay'=>!empty($data_raw['autoplay'])?'yes':'no','thumbnails'=>!empty($data_raw['thumbnails'])?'yes':'no','desktop_columns'=>max(1,min(6,absint($data_raw['desktop_columns']??($data_raw['columns']??3)))),'tablet_columns'=>max(1,min(4,absint($data_raw['tablet_columns']??2))),'mobile_columns'=>max(1,min(2,absint($data_raw['mobile_columns']??1))),'slider_height'=>max(180,min(1000,absint($data_raw['slider_height']??420))),'list_mode'=>in_array(($data_raw['list_mode']??'details'),array('video_only','details'),true)?$data_raw['list_mode']:'details','ratio'=>'16:9','radius'=>max(0,min(32,absint($data_raw['radius']??14))),'thumb_width'=>max(160,min(480,absint($data_raw['thumb_width']??300))),'interval'=>max(2,min(12,absint($data_raw['interval']??5))),'slider_fit'=>(($data_raw['slider_fit']??'')==='contain')?'contain':'cover','playlist_height'=>max(240,min(800,absint($data_raw['playlist_height']??420))),'scrolling'=>!empty($data_raw['scrolling'])?'yes':'no','active_color'=>sanitize_hex_color($data_raw['active_color']??'')?:'#2f6bd8','playlist_border_color'=>sanitize_hex_color($data_raw['playlist_border_color']??'')?:'#d7e2f0','playlist_icon_color'=>sanitize_hex_color($data_raw['playlist_icon_color']??'')?:'#2f6bd8','slider_container_color'=>sanitize_hex_color($data_raw['slider_container_color']??'')?:'#0b1220','slider_title_color'=>sanitize_hex_color($data_raw['slider_title_color']??'')?:'#ffffff','show_metadata'=>!empty($data_raw['show_metadata'])?'yes':'no');
-        update_option('kve_saved_collections',$collections,false);
-        wp_safe_redirect(add_query_arg(array('page'=>'kve-collections','edit_collection'=>$id,'saved_collection'=>1),admin_url('admin.php')));exit;
+        update_option('kashida_video_embed_saved_collections',$collections,false);
+        wp_safe_redirect(add_query_arg(array('page'=>'kashida-video-embed-collections','edit_collection'=>$id,'saved_collection'=>1),admin_url('admin.php')));exit;
     }
     public function delete_collection() {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read only to construct the item-specific nonce action; check_admin_referer() validates the request below.
         $id = isset($_GET['collection_id']) ? absint($_GET['collection_id']) : 0;
-        if(!current_user_can('edit_posts') || !$id || !check_admin_referer('kve_delete_collection_'.$id)) wp_die(esc_html__('You are not allowed to delete this collection.','kashida-video-embed'));
-        $collections=get_option('kve_saved_collections',array()); if(is_array($collections)&&isset($collections[$id])){unset($collections[$id]);update_option('kve_saved_collections',$collections,false);}
-        wp_safe_redirect(add_query_arg(array('page'=>'kve-collections','deleted_collection'=>1),admin_url('admin.php')));exit;
+        if(!current_user_can('edit_posts') || !$id || !check_admin_referer('kashida_video_embed_delete_collection_'.$id)) wp_die(esc_html__('You are not allowed to delete this collection.','kashida-video-embed'));
+        $collections=$this->get_saved_collections(); if(is_array($collections)&&isset($collections[$id])){unset($collections[$id]);update_option('kashida_video_embed_saved_collections',$collections,false);}
+        wp_safe_redirect(add_query_arg(array('page'=>'kashida-video-embed-collections','deleted_collection'=>1),admin_url('admin.php')));exit;
     }
     public function saved_collection_shortcode($atts) {
         $atts=shortcode_atts(array('id'=>0),(array)$atts,'kashida_video_collection'); $id=absint($atts['id']);
-        $collections=get_option('kve_saved_collections',array()); if(!$id||!is_array($collections)||!isset($collections[$id]))return '';
+        $collections=$this->get_saved_collections(); if(!$id||!is_array($collections)||!isset($collections[$id]))return '';
         $c=$collections[$id];
         return $this->gallery_shortcode(array('ids'=>implode(',',(array)$c['ids']),'layout'=>$c['layout']??'grid','columns'=>$c['columns']??3,'gap'=>$c['gap']??16,'overlay'=>$c['overlay']??'#000000','overlay_opacity'=>$c['overlay_opacity']??0,'text_color'=>$c['text_color']??'#ffffff','title_size'=>$c['title_size']??16,'show_title'=>$c['show_title']??'yes','surface_color'=>$c['surface_color']??'#ffffff','show_arrows'=>$c['show_arrows']??'yes','show_dots'=>$c['show_dots']??'yes','autoplay'=>$c['autoplay']??'no','thumbnails'=>$c['thumbnails']??'yes','desktop_columns'=>$c['desktop_columns']??($c['columns']??3),'tablet_columns'=>$c['tablet_columns']??2,'mobile_columns'=>$c['mobile_columns']??1,'slider_height'=>$c['slider_height']??420,'list_mode'=>$c['list_mode']??'details','ratio'=>$c['ratio']??'16:9','radius'=>$c['radius']??14,'thumb_width'=>$c['thumb_width']??300,'interval'=>$c['interval']??5,'slider_fit'=>$c['slider_fit']??'cover','playlist_height'=>$c['playlist_height']??0,'scrolling'=>$c['scrolling']??'yes','active_color'=>$c['active_color']??'#1769aa','playlist_border_color'=>$c['playlist_border_color']??'#d7e2f0','playlist_icon_color'=>$c['playlist_icon_color']??'#2f6bd8','slider_container_color'=>$c['slider_container_color']??'#0b1220','slider_title_color'=>$c['slider_title_color']??'#ffffff','show_metadata'=>$c['show_metadata']??'legacy'));
     }
@@ -260,7 +347,7 @@ KVELIBRARYJS;
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only edit selection; all writes use the nonce-protected save handler.
         $id = isset($_GET['edit']) ? absint($_GET['edit']) : 0;
         $item = $id ? get_post($id) : null;
-        if ($item && ($item->post_type !== self::CPT || !current_user_can('edit_post',$id))) $item = null;
+        if ($item && (!$this->is_video_post($item) || !current_user_can('edit_post',$id))) $item = null;
         $url = $item ? get_post_meta($id,'_kve_url',true) : '';
         $ratio = $item ? get_post_meta($id,'_kve_ratio',true) : '16:9';
         $controls = $item ? (get_post_meta($id,'_kve_controls',true) !== '0') : true;
@@ -275,24 +362,30 @@ KVELIBRARYJS;
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only status flag after a nonce-protected action.
         if (isset($_GET['deleted'])) echo '<div class="notice notice-success is-dismissible"><p>'.esc_html__('Video deleted successfully.','kashida-video-embed').'</p></div>';
         echo '<div class="kve-card"><h2>'.esc_html($item ? __('Edit Video','kashida-video-embed') : __('Add New Video','kashida-video-embed')).'</h2><p>'.esc_html__('Paste a video URL or provider embed code. Settings are applied to the preview below.','kashida-video-embed').'</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
-        wp_nonce_field('kve_save_video'); echo '<input type="hidden" name="action" value="kve_save_video"><input type="hidden" name="video_id" value="'.absint($id).'">';
+        wp_nonce_field('kashida_video_embed_save_video'); echo '<input type="hidden" name="action" value="kashida_video_embed_save_video"><input type="hidden" name="video_id" value="'.absint($id).'">';
         echo '<div class="kve-settings-grid"><div class="kve-settings-column">';
         echo '<label for="kve-title">'.esc_html__('Video title','kashida-video-embed').'</label><input class="large-text" id="kve-title" name="title" required value="'.esc_attr($item ? $item->post_title : '').'" placeholder="'.esc_attr__('e.g. Product introduction','kashida-video-embed').'">';
         echo '<label for="kve-input-mode">'.esc_html__('Source type','kashida-video-embed').'</label><select id="kve-input-mode" name="input_mode"><option value="url" '.selected($input_mode,'url',false).'>'.esc_html__('Video URL','kashida-video-embed').'</option><option value="code" '.selected($input_mode,'code',false).'>'.esc_html__('Embed code','kashida-video-embed').'</option></select><div id="kve-url-field"><label for="kve-url">'.esc_html__('Video URL','kashida-video-embed').'</label><input class="large-text" type="url" id="kve-url" name="url" value="'.esc_attr($url).'" placeholder="https://www.youtube.com/watch?v=…"><div id="kve-provider-help" class="kve-provider-help" aria-live="polite"><div class="kve-provider-brand"><span id="kve-provider-logo" class="kve-provider-logo">▶</span><strong id="kve-provider-name">'.esc_html__('Paste a video URL to see platform instructions','kashida-video-embed').'</strong></div><div id="kve-provider-instructions" class="kve-provider-instructions">'.esc_html__('Choose a platform URL. Instructions for copying its link or embed code will appear here.','kashida-video-embed').'</div><a id="kve-provider-doc" href="https://wordpress.org/documentation/article/wordpress-editor/" target="_blank" rel="noopener noreferrer" hidden>'.esc_html__('Open official help','kashida-video-embed').'</a></div><div id="kve-dailymotion-player-field"><label for="kve-dailymotion-player-id">'.esc_html__('Dailymotion Player ID (required for Dailymotion links)','kashida-video-embed').'</label><input class="large-text" type="text" id="kve-dailymotion-player-id" name="dailymotion_player_id" value="'.esc_attr($dailymotion_player_id).'" placeholder="e.g. x8lr5"></div></div><div id="kve-code-field"><label for="kve-embed-code">'.esc_html__('Embed code','kashida-video-embed').'</label><textarea class="large-text code" rows="5" id="kve-embed-code" name="embed_code" placeholder="&lt;iframe src=...&gt;&lt;/iframe&gt;">'.esc_textarea($embed_code).'</textarea></div>';
         echo '<label for="kve-display-mode">'.esc_html__('Display mode','kashida-video-embed').'</label><select id="kve-display-mode" name="display_mode"><option value="player" '.selected($display_mode,'player',false).'>'.esc_html__('Video only','kashida-video-embed').'</option><option value="provider" '.selected($display_mode,'provider',false).'>'.esc_html__('Show provider details and interface','kashida-video-embed').'</option></select></div><div class="kve-settings-column">';
         echo '<label for="kve-ratio">'.esc_html__('Aspect ratio','kashida-video-embed').'</label><select id="kve-ratio" name="ratio"><option '.selected($ratio,'16:9',false).' value="16:9">16:9</option><option '.selected($ratio,'9:16',false).' value="9:16">9:16</option><option '.selected($ratio,'4:3',false).' value="4:3">4:3</option><option '.selected($ratio,'1:1',false).' value="1:1">1:1</option></select><p><label class="kve-check-label"><input type="checkbox" name="controls" value="1" '.checked($controls,true,false).'> '.esc_html__('Show player controls when supported','kashida-video-embed').'</label></p><p><label class="kve-check-label"><input type="checkbox" name="lazy" value="1" '.checked($lazy,true,false).'> '.esc_html__('Enable lazy loading','kashida-video-embed').'</label></p><p class="description">'.esc_html__('Additional supported sources include Dailymotion, TikTok, Twitch, Instagram and WordPress.tv when their embed methods are available.','kashida-video-embed').'</p></div></div>';
         if ($id) { echo '<div class="kve-shortcode-box"><label for="kve-shortcode">'.esc_html__('Video shortcode','kashida-video-embed').'</label><div class="kve-url-row"><input readonly class="large-text code" id="kve-shortcode" value="'.esc_attr('[kashida_video_embed id="'.$id.'"]').'"><button type="button" class="button" id="kve-copy-shortcode">'.esc_html__('Copy shortcode','kashida-video-embed').'</button></div><p class="description">'.esc_html__('Copy this shortcode into any page or post to display this video.','kashida-video-embed').'</p></div>'; }
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_video() validates URLs and sanitizes provider embed markup before returning HTML.
-        echo '<h3>'.esc_html__('Video Preview','kashida-video-embed').'</h3><div class="kve-url-row"><button type="button" class="button" id="kve-preview">'.esc_html__('Refresh preview','kashida-video-embed').'</button></div><div id="kve-preview-area" class="kve-preview-area">'.($url ? $this->render_video($url,$ratio,$controls,$lazy,$input_mode,$display_mode,$embed_code,$dailymotion_player_id) : '<p>'.esc_html__('Your video preview will appear here when supported.','kashida-video-embed').'</p>').'</div><p><button class="button button-primary" type="submit">'.esc_html__('Save Video','kashida-video-embed').'</button></p></form></div>';
-        echo '<script>document.addEventListener("DOMContentLoaded",function(){var mode=document.getElementById("kve-input-mode"),uf=document.getElementById("kve-url-field"),cf=document.getElementById("kve-code-field");function toggleMode(){uf.style.display=mode.value==="url"?"":"none";cf.style.display=mode.value==="code"?"":"none";}mode.addEventListener("change",toggleMode);toggleMode();var providerData={youtube:{name:"YouTube",mark:"▶",color:"#ff0033",steps:"Link: open the video, select Share, then Copy. Embed code: select Share → Embed → Copy. Paste either here.",url:"https://support.google.com/youtube/answer/57741"},vimeo:{name:"Vimeo",mark:"v",color:"#1ab7ea",steps:"Link: open the video and select Share → Copy link. Embed code: select Share → Embed, then Copy embed code. Embedding may be restricted by the owner.",url:"https://help.vimeo.com/hc/en-us/articles/12426259908881-How-to-embed-my-video"},facebook:{name:"Facebook",mark:"f",color:"#0866ff",steps:"Link: open the public video or Reel, use the menu or Share option, then Copy link. Embed code: when available for a public video, open its menu and choose Embed. Some videos, private posts and login-restricted content cannot be embedded.",url:"https://www.facebook.com/help/"},x:{name:"X",mark:"𝕏",color:"#111111",steps:"Link: open the post containing the video, select Share, then Copy link. Embed code: open the post menu (•••) and choose Embed post on the X publish tools. The official embed may show the post details, not only the video.",url:"https://publish.x.com/"},tiktok:{name:"TikTok",mark:"♪",color:"#111111",steps:"Link: open the video in a desktop browser, select Share → Copy link. Embed code: select Share → Embed and copy the code. TikTok embeds normally include creator details and links.",url:"https://developers.tiktok.com/docs/en/embed-videos"},instagram:{name:"Instagram",mark:"◎",color:"#c13584",steps:"Link: open the public post or Reel, select Share → Copy link. Embed code: open the post menu and choose Embed when available. Private-account content cannot be embedded for public viewing.",url:"https://help.instagram.com/"},dailymotion:{name:"Dailymotion",mark:"D",color:"#00aaff",steps:"Link: open the video and use Share / Copy link. Embed code: in Dailymotion Studio, go to Media → Videos, open the three-dot menu and choose Embed video, then copy the iframe or embed script.",url:"https://faq.dailymotion.com/hc/en-us/articles/115008959787-Embed-your-content"},twitch:{name:"Twitch",mark:"▣",color:"#9146ff",steps:"Link: use Share on a stream, past broadcast or clip and copy the URL. Embed code: use the Share / Embed option; Twitch embeds may require a parent-domain setting to be configured.",url:"https://help.twitch.tv/s/article/how-to-share-a-stream"},direct:{name:"Direct video / WordPress Media Library",mark:"▶",color:"#50575e",steps:"In WordPress, open Media → Library, select the video file, and copy its File URL. Paste the URL here. Direct links usually end in .mp4, .webm or .ogv.",url:"https://wordpress.org/documentation/article/media-library-screen/"},unknown:{name:"Other video website",mark:"↗",color:"#50575e",steps:"Paste the public share URL first. If automatic embedding is unavailable, switch Source type to Embed code and paste the iframe supplied by that website. The site must allow external embedding.",url:"https://wordpress.org/documentation/article/wordpress-embeds/"}};var urlInput=document.getElementById("kve-url"),pLogo=document.getElementById("kve-provider-logo"),pName=document.getElementById("kve-provider-name"),pSteps=document.getElementById("kve-provider-instructions"),pDoc=document.getElementById("kve-provider-doc");function updateProvider(sourceValue){var value=(typeof sourceValue==="string"?sourceValue:(urlInput?urlInput.value:" ")).trim(),host="";try{host=new URL(value).hostname.toLowerCase().replace(/^www\./,"");}catch(e){}var key="unknown";if(!host)key="empty";else if(host.indexOf("youtube.com")>=0||host==="youtu.be")key="youtube";else if(host.indexOf("vimeo.com")>=0)key="vimeo";else if(host.indexOf("facebook.com")>=0||host==="fb.watch"||host.indexOf("fb.watch")>=0)key="facebook";else if(host==="x.com"||host.endsWith(".x.com")||host.indexOf("twitter.com")>=0)key="x";else if(host.indexOf("tiktok.com")>=0)key="tiktok";else if(host.indexOf("instagram.com")>=0)key="instagram";else if(host.indexOf("dailymotion.com")>=0||host==="dai.ly")key="dailymotion";else if(host.indexOf("twitch.tv")>=0)key="twitch";else if(/\.(mp4|webm|ogv|ogg)(?:$)/i.test(value))key="direct";if(key==="empty"){pLogo.textContent="▶";pLogo.style.background="#50575e";pName.textContent="'.esc_js(__('Paste a video URL to see platform instructions','kashida-video-embed')).'";pSteps.textContent="'.esc_js(__('Choose a platform URL. Instructions for copying its link or embed code will appear here.','kashida-video-embed')).'";pDoc.hidden=true;return;}var item=providerData[key]||providerData.unknown;pLogo.textContent=item.mark;pLogo.style.background=item.color;pName.textContent=item.name;pSteps.textContent=item.steps;pDoc.href=item.url;pDoc.hidden=false;}var dmField=document.getElementById("kve-dailymotion-player-field");function toggleDmField(){if(!dmField||!urlInput)return;var v=urlInput.value.toLowerCase();dmField.style.display=(v.indexOf("dailymotion.com")!==-1||v.indexOf("dai.ly/")!==-1)?"":"none";}if(urlInput){urlInput.addEventListener("input",function(){updateProvider();toggleDmField();});urlInput.addEventListener("change",function(){updateProvider();toggleDmField();});updateProvider();toggleDmField();}var codeInput=document.getElementById("kve-embed-code");if(codeInput){codeInput.addEventListener("input",function(){if(mode.value==="code"){var m=codeInput.value.match(/src=[\"\']([^\"\']+)/i);if(m){updateProvider(m[1]);}}});if(mode.value==="code"){var initialEmbed=codeInput.value.match(/src=[\"\']([^\"\']+)/i);if(initialEmbed)updateProvider(initialEmbed[1]);}}var b=document.getElementById("kve-preview");if(b)b.addEventListener("click",function(){var u=document.getElementById("kve-url").value,a=document.getElementById("kve-preview-area");if(mode.value==="url"&&!u){a.textContent="'.esc_js(__('Enter a video URL first.','kashida-video-embed')).'";return;}b.disabled=true;var d=new FormData();d.append("action","kve_preview_video");d.append("nonce","'.esc_js(wp_create_nonce('kve_preview_video')).'");d.append("url",u);d.append("ratio",document.getElementById("kve-ratio").value);d.append("display_mode",document.getElementById("kve-display-mode").value);d.append("input_mode",mode.value);d.append("embed_code",document.getElementById("kve-embed-code").value);d.append("dailymotion_player_id",document.getElementById("kve-dailymotion-player-id").value);d.append("controls",document.querySelector("[name=controls]").checked?"1":"0");d.append("lazy",document.querySelector("[name=lazy]").checked?"1":"0");fetch(ajaxurl,{method:"POST",credentials:"same-origin",body:d}).then(function(r){return r.json();}).then(function(r){a.innerHTML=r.success?r.data.html:"<p>Preview unavailable for this source.</p>";}).catch(function(){a.textContent="Preview unavailable.";}).finally(function(){b.disabled=false;});});var copy=document.getElementById("kve-copy-shortcode");if(copy)copy.addEventListener("click",function(){var input=document.getElementById("kve-shortcode");input.select();document.execCommand("copy");copy.textContent="'.esc_js(__('Copied','kashida-video-embed')).'";});});</script>';
+        echo '<h3>'.esc_html__('Video Preview','kashida-video-embed').'</h3><div class="kve-url-row"><button type="button" class="button" id="kve-preview">'.esc_html__('Refresh preview','kashida-video-embed').'</button></div><div id="kve-preview-area" class="kve-preview-area">'.wp_kses(($url ? $this->render_video($url,$ratio,$controls,$lazy,$input_mode,$display_mode,$embed_code,$dailymotion_player_id) : '<p>'.esc_html__('Your video preview will appear here when supported.','kashida-video-embed').'</p>'), array(
+            'div'=>array('class'=>true,'style'=>true,'data-*'=>true),
+            'iframe'=>array('src'=>true,'width'=>true,'height'=>true,'title'=>true,'allow'=>true,'allowfullscreen'=>true,'loading'=>true,'frameborder'=>true,'referrerpolicy'=>true,'style'=>true),
+            'video'=>array('controls'=>true,'playsinline'=>true,'preload'=>true,'style'=>true,'width'=>true,'height'=>true),
+            'source'=>array('src'=>true,'type'=>true),
+            'a'=>array('href'=>true,'target'=>true,'rel'=>true),
+            'p'=>array('class'=>true),'blockquote'=>array('class'=>true,'cite'=>true),'span'=>array('class'=>true)
+        )).'</div><p><button class="button button-primary" type="submit">'.esc_html__('Save Video','kashida-video-embed').'</button></p></form></div>';
+        wp_add_inline_script('kashida-video-embed-add-video-inline', 'document.addEventListener("DOMContentLoaded",function(){var mode=document.getElementById("kve-input-mode"),uf=document.getElementById("kve-url-field"),cf=document.getElementById("kve-code-field");function toggleMode(){uf.style.display=mode.value==="url"?"":"none";cf.style.display=mode.value==="code"?"":"none";}mode.addEventListener("change",toggleMode);toggleMode();var providerData={youtube:{name:"YouTube",mark:"▶",color:"#ff0033",steps:"Link: open the video, select Share, then Copy. Embed code: select Share → Embed → Copy. Paste either here.",url:"https://support.google.com/youtube/answer/57741"},vimeo:{name:"Vimeo",mark:"v",color:"#1ab7ea",steps:"Link: open the video and select Share → Copy link. Embed code: select Share → Embed, then Copy embed code. Embedding may be restricted by the owner.",url:"https://help.vimeo.com/hc/en-us/articles/12426259908881-How-to-embed-my-video"},facebook:{name:"Facebook",mark:"f",color:"#0866ff",steps:"Link: open the public video or Reel, use the menu or Share option, then Copy link. Embed code: when available for a public video, open its menu and choose Embed. Some videos, private posts and login-restricted content cannot be embedded.",url:"https://www.facebook.com/help/"},x:{name:"X",mark:"𝕏",color:"#111111",steps:"Link: open the post containing the video, select Share, then Copy link. Embed code: open the post menu (•••) and choose Embed post on the X publish tools. The official embed may show the post details, not only the video.",url:"https://publish.x.com/"},tiktok:{name:"TikTok",mark:"♪",color:"#111111",steps:"Link: open the video in a desktop browser, select Share → Copy link. Embed code: select Share → Embed and copy the code. TikTok embeds normally include creator details and links.",url:"https://developers.tiktok.com/docs/en/embed-videos"},instagram:{name:"Instagram",mark:"◎",color:"#c13584",steps:"Link: open the public post or Reel, select Share → Copy link. Embed code: open the post menu and choose Embed when available. Private-account content cannot be embedded for public viewing.",url:"https://help.instagram.com/"},dailymotion:{name:"Dailymotion",mark:"D",color:"#00aaff",steps:"Link: open the video and use Share / Copy link. Embed code: in Dailymotion Studio, go to Media → Videos, open the three-dot menu and choose Embed video, then copy the iframe or embed script.",url:"https://faq.dailymotion.com/hc/en-us/articles/115008959787-Embed-your-content"},twitch:{name:"Twitch",mark:"▣",color:"#9146ff",steps:"Link: use Share on a stream, past broadcast or clip and copy the URL. Embed code: use the Share / Embed option; Twitch embeds may require a parent-domain setting to be configured.",url:"https://help.twitch.tv/s/article/how-to-share-a-stream"},direct:{name:"Direct video / WordPress Media Library",mark:"▶",color:"#50575e",steps:"In WordPress, open Media → Library, select the video file, and copy its File URL. Paste the URL here. Direct links usually end in .mp4, .webm or .ogv.",url:"https://wordpress.org/documentation/article/media-library-screen/"},unknown:{name:"Other video website",mark:"↗",color:"#50575e",steps:"Paste the public share URL first. If automatic embedding is unavailable, switch Source type to Embed code and paste the iframe supplied by that website. The site must allow external embedding.",url:"https://wordpress.org/documentation/article/wordpress-embeds/"}};var urlInput=document.getElementById("kve-url"),pLogo=document.getElementById("kve-provider-logo"),pName=document.getElementById("kve-provider-name"),pSteps=document.getElementById("kve-provider-instructions"),pDoc=document.getElementById("kve-provider-doc");function updateProvider(sourceValue){var value=(typeof sourceValue==="string"?sourceValue:(urlInput?urlInput.value:" ")).trim(),host="";try{host=new URL(value).hostname.toLowerCase().replace(/^www\./,"");}catch(e){}var key="unknown";if(!host)key="empty";else if(host.indexOf("youtube.com")>=0||host==="youtu.be")key="youtube";else if(host.indexOf("vimeo.com")>=0)key="vimeo";else if(host.indexOf("facebook.com")>=0||host==="fb.watch"||host.indexOf("fb.watch")>=0)key="facebook";else if(host==="x.com"||host.endsWith(".x.com")||host.indexOf("twitter.com")>=0)key="x";else if(host.indexOf("tiktok.com")>=0)key="tiktok";else if(host.indexOf("instagram.com")>=0)key="instagram";else if(host.indexOf("dailymotion.com")>=0||host==="dai.ly")key="dailymotion";else if(host.indexOf("twitch.tv")>=0)key="twitch";else if(/\.(mp4|webm|ogv|ogg)(?:$)/i.test(value))key="direct";if(key==="empty"){pLogo.textContent="▶";pLogo.style.background="#50575e";pName.textContent="'.esc_js(__('Paste a video URL to see platform instructions','kashida-video-embed')).'";pSteps.textContent="'.esc_js(__('Choose a platform URL. Instructions for copying its link or embed code will appear here.','kashida-video-embed')).'";pDoc.hidden=true;return;}var item=providerData[key]||providerData.unknown;pLogo.textContent=item.mark;pLogo.style.background=item.color;pName.textContent=item.name;pSteps.textContent=item.steps;pDoc.href=item.url;pDoc.hidden=false;}var dmField=document.getElementById("kve-dailymotion-player-field");function toggleDmField(){if(!dmField||!urlInput)return;var v=urlInput.value.toLowerCase();dmField.style.display=(v.indexOf("dailymotion.com")!==-1||v.indexOf("dai.ly/")!==-1)?"":"none";}if(urlInput){urlInput.addEventListener("input",function(){updateProvider();toggleDmField();});urlInput.addEventListener("change",function(){updateProvider();toggleDmField();});updateProvider();toggleDmField();}var codeInput=document.getElementById("kve-embed-code");if(codeInput){codeInput.addEventListener("input",function(){if(mode.value==="code"){var m=codeInput.value.match(/src=[\"\']([^\"\']+)/i);if(m){updateProvider(m[1]);}}});if(mode.value==="code"){var initialEmbed=codeInput.value.match(/src=[\"\']([^\"\']+)/i);if(initialEmbed)updateProvider(initialEmbed[1]);}}var b=document.getElementById("kve-preview");if(b)b.addEventListener("click",function(){var u=document.getElementById("kve-url").value,a=document.getElementById("kve-preview-area");if(mode.value==="url"&&!u){a.textContent="'.esc_js(__('Enter a video URL first.','kashida-video-embed')).'";return;}b.disabled=true;var d=new FormData();d.append("action","kashida_video_embed_preview_video");d.append("nonce","'.esc_js(wp_create_nonce('kashida_video_embed_preview_video')).'");d.append("url",u);d.append("ratio",document.getElementById("kve-ratio").value);d.append("display_mode",document.getElementById("kve-display-mode").value);d.append("input_mode",mode.value);d.append("embed_code",document.getElementById("kve-embed-code").value);d.append("dailymotion_player_id",document.getElementById("kve-dailymotion-player-id").value);d.append("controls",document.querySelector("[name=controls]").checked?"1":"0");d.append("lazy",document.querySelector("[name=lazy]").checked?"1":"0");fetch(ajaxurl,{method:"POST",credentials:"same-origin",body:d}).then(function(r){return r.json();}).then(function(r){a.innerHTML=r.success?r.data.html:"<p>Preview unavailable for this source.</p>";}).catch(function(){a.textContent="Preview unavailable.";}).finally(function(){b.disabled=false;});});var copy=document.getElementById("kve-copy-shortcode");if(copy)copy.addEventListener("click",function(){var input=document.getElementById("kve-shortcode");input.select();document.execCommand("copy");copy.textContent="'.esc_js(__('Copied','kashida-video-embed')).'";});});', 'after');
         $this->footer();
     }
     public function provider_scripts() {
-        wp_register_script('kve-twitter-widgets', 'https://platform.twitter.com/widgets.js', array(), self::VERSION, true);
+        wp_register_script('kashida-video-embed-twitter-widgets', 'https://platform.twitter.com/widgets.js', array(), self::VERSION, true);
     }
     public function ajax_preview_video() {
         if (!current_user_can('edit_posts')) wp_send_json_error();
-        check_ajax_referer('kve_preview_video','nonce');
+        check_ajax_referer('kashida_video_embed_preview_video','nonce');
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- URLs require URL-specific sanitization; esc_url_raw() is applied before use.
         $url = isset($_POST['url']) ? esc_url_raw(trim(wp_unslash($_POST['url']))) : '';
         $ratio = isset($_POST['ratio']) ? sanitize_text_field(wp_unslash($_POST['ratio'])) : '16:9';
@@ -306,7 +399,7 @@ KVELIBRARYJS;
     }
     public function save_video() {
         if (!current_user_can('edit_posts')) wp_die(esc_html__('You are not allowed to do this.','kashida-video-embed'));
-        check_admin_referer('kve_save_video');
+        check_admin_referer('kashida_video_embed_save_video');
         $id = isset($_POST['video_id']) ? absint($_POST['video_id']) : 0;
         if ($id && !current_user_can('edit_post',$id)) wp_die(esc_html__('You are not allowed to edit this video.','kashida-video-embed'));
         $input_mode = isset($_POST['input_mode']) && sanitize_key(wp_unslash($_POST['input_mode']))==='code' ? 'code' : 'url';
@@ -323,19 +416,19 @@ KVELIBRARYJS;
         update_post_meta($saved,'_kve_url',$url); update_post_meta($saved,'_kve_input_mode',$input_mode); update_post_meta($saved,'_kve_embed_code',$input_mode==='code' ? wp_kses($embed_code,array('iframe'=>array('src'=>true,'width'=>true,'height'=>true,'title'=>true,'allow'=>true,'allowfullscreen'=>true,'loading'=>true,'frameborder'=>true,'referrerpolicy'=>true,'style'=>true))) : ''); update_post_meta($saved,'_kve_dailymotion_player_id',isset($_POST['dailymotion_player_id'])?sanitize_text_field(wp_unslash($_POST['dailymotion_player_id'])):''); update_post_meta($saved,'_kve_display_mode',$display_mode); $ratio=isset($_POST['ratio'])?sanitize_text_field(wp_unslash($_POST['ratio'])):'16:9'; if(!in_array($ratio,array('16:9','9:16','4:3','1:1'),true))$ratio='16:9'; update_post_meta($saved,'_kve_ratio',$ratio);
         update_post_meta($saved,'_kve_controls',!empty($_POST['controls'])?'1':'0');
         update_post_meta($saved,'_kve_lazy',!empty($_POST['lazy'])?'1':'0');
-        wp_safe_redirect(add_query_arg(array('page'=>'kve-add-new','edit'=>$saved,'saved'=>1),admin_url('admin.php'))); exit;
+        wp_safe_redirect(add_query_arg(array('page'=>'kashida-video-embed-add-new','edit'=>$saved,'saved'=>1),admin_url('admin.php'))); exit;
     }
     public function delete_video() {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read only to construct the item-specific nonce action; check_admin_referer() validates the request below.
         $id = isset($_GET['video_id']) ? absint($_GET['video_id']) : 0;
         if (!$id) wp_die(esc_html__('Invalid video ID.','kashida-video-embed'));
-        check_admin_referer('kve_delete_video_'.$id);
+        check_admin_referer('kashida_video_embed_delete_video_'.$id);
         $item = get_post($id);
-        if (!$item || $item->post_type !== self::CPT) wp_die(esc_html__('Video not found.','kashida-video-embed'));
+        if (!$item || !$this->is_video_post($item)) wp_die(esc_html__('Video not found.','kashida-video-embed'));
         if (!current_user_can('delete_post', $id)) wp_die(esc_html__('You are not allowed to delete this video.','kashida-video-embed'));
         $deleted = wp_delete_post($id, true);
         if (!$deleted) wp_die(esc_html__('The video could not be deleted.','kashida-video-embed'));
-        wp_safe_redirect(add_query_arg(array('page'=>'kve-videos','deleted'=>1), admin_url('admin.php')));
+        wp_safe_redirect(add_query_arg(array('page'=>'kashida-video-embed-videos','deleted'=>1), admin_url('admin.php')));
         exit;
     }
     public function help_page() {
@@ -350,7 +443,6 @@ KVELIBRARYJS;
         echo '<div class="kve-card"><h2>'.esc_html__('Video collections and layouts','kashida-video-embed').'</h2><p>'.esc_html__('Open Video Collections to create or edit a reusable group. Select saved videos, choose a layout, configure its options, check the live preview, save, then copy the collection shortcode. Editing a saved collection keeps its shortcode unchanged.','kashida-video-embed').'</p><ul><li><strong>Grid:</strong> '.esc_html__('Responsive columns, title visibility, card background, title color and size, spacing and border radius.','kashida-video-embed').'</li><li><strong>List:</strong> '.esc_html__('Vertical rows with optional information and metadata, thumbnail width, row background, title color and size, spacing and border radius.','kashida-video-embed').'</li><li><strong>Carousel:</strong> '.esc_html__('Horizontal cards with responsive item counts, height, arrows, pagination dots, title and metadata visibility, overlay color and opacity, spacing and border radius.','kashida-video-embed').'</li><li><strong>Slider:</strong> '.esc_html__('One featured slide with height, image fit, autoplay interval, arrows, dots, title visibility and color, overlay color and opacity, and container/card appearance controls.','kashida-video-embed').'</li><li><strong>Featured + Playlist:</strong> '.esc_html__('A main video with a side playlist, playlist height and scrolling, active-item color, border and icon colors, metadata visibility, spacing and card appearance.','kashida-video-embed').'</li></ul><p>'.esc_html__('Settings available depend on the selected layout. Use the live preview to check visual changes, then save and test the shortcode on a front-end page. External players may look different from the preview.','kashida-video-embed').'</p><p>'.esc_html__('Example:','kashida-video-embed').' <code>[kashida_video_gallery ids="123,124,125" layout="grid" columns="3" gap="16" show_title="yes"]</code></p></div>';
         echo '<div class="kve-card kve-platform-help"><h2>'.esc_html__('How to copy a link from each platform','kashida-video-embed').'</h2><p>'.esc_html__('Copy the original public share link from the platform, then paste it into Video URL. Use Embed code only when automatic embedding is unavailable.','kashida-video-embed').'</p><details><summary>YouTube</summary><ol><li>'.esc_html__('Open the video.','kashida-video-embed').'</li><li>'.esc_html__('Select Share, then Copy link. For embed code, select Share → Embed → Copy.','kashida-video-embed').'</li><li>'.esc_html__('Paste the link into Video URL.','kashida-video-embed').'</li></ol></details><details><summary>Vimeo</summary><ol><li>'.esc_html__('Open the video and select Share.','kashida-video-embed').'</li><li>'.esc_html__('Copy the video link. If embedding is restricted, ask the owner to allow embedding on your domain.','kashida-video-embed').'</li></ol></details><details><summary>Facebook</summary><ol><li>'.esc_html__('Open the public video or Reel.','kashida-video-embed').'</li><li>'.esc_html__('Select Share or the three-dot menu, then Copy link.','kashida-video-embed').'</li><li>'.esc_html__('Private posts and videos requiring login may not embed.','kashida-video-embed').'</li></ol></details><details><summary>X / Twitter</summary><ol><li>'.esc_html__('Open the post containing the video.','kashida-video-embed').'</li><li>'.esc_html__('Select Share → Copy link.','kashida-video-embed').'</li><li>'.esc_html__('The embed may display the original post and its details, not only the video.','kashida-video-embed').'</li></ol></details><details><summary>TikTok</summary><ol><li>'.esc_html__('Open the video and select Share.','kashida-video-embed').'</li><li>'.esc_html__('Select Copy link. Alternatively, select Embed and copy the provided embed code.','kashida-video-embed').'</li></ol></details><details><summary>Instagram</summary><ol><li>'.esc_html__('Open the public post or Reel.','kashida-video-embed').'</li><li>'.esc_html__('Open the post menu and select Copy link.','kashida-video-embed').'</li><li>'.esc_html__('Private-account content cannot be embedded for public visitors.','kashida-video-embed').'</li></ol></details><details><summary>Dailymotion</summary><ol><li>'.esc_html__('Open the video and select Share → Copy link.','kashida-video-embed').'</li><li>'.esc_html__('Paste the original link. If Dailymotion rejects the player, use the official embed code or a valid Player ID from Dailymotion Studio.','kashida-video-embed').'</li></ol></details><details><summary>Twitch</summary><ol><li>'.esc_html__('Open the stream, past broadcast or clip.','kashida-video-embed').'</li><li>'.esc_html__('Select Share and copy the original URL.','kashida-video-embed').'</li><li>'.esc_html__('Test on the real HTTPS domain. Local development domains and nested frames can block the player.','kashida-video-embed').'</li></ol></details><details><summary>WordPress Media / direct video files</summary><ol><li>'.esc_html__('Open Media → Library and select the video file.','kashida-video-embed').'</li><li>'.esc_html__('Copy the File URL and paste it into Video URL.','kashida-video-embed').'</li><li>'.esc_html__('Supported formats include MP4, WebM, OGV and OGG.','kashida-video-embed').'</li></ol></details><details><summary>WordPress.tv</summary><ol><li>'.esc_html__('Open the video page and copy its public URL.','kashida-video-embed').'</li><li>'.esc_html__('Paste the link and test the preview. If it is not embeddable, use the official embed code if provided.','kashida-video-embed').'</li></ol></details></div>';
         echo '<div class="kve-card"><h2>'.esc_html__('Troubleshooting','kashida-video-embed').'</h2><details><summary>'.esc_html__('The preview is blank or shows a provider error','kashida-video-embed').'</summary><p>'.esc_html__('Check that the URL is public and copied from the provider’s Share option. Try the canonical video URL or official embed code. Refresh the preview after changing fields.','kashida-video-embed').'</p></details><details><summary>'.esc_html__('Twitch says refused to connect or parent is invalid','kashida-video-embed').'</summary><p>'.esc_html__('Test on the actual HTTPS site. The Twitch parent value must match the domain displaying the player, and nested embedding contexts can require additional parent domains. Local .local domains or security policies may prevent playback.','kashida-video-embed').'</p></details><details><summary>'.esc_html__('The video plays on one site but not another','kashida-video-embed').'</summary><p>'.esc_html__('Check the public site URL, HTTPS, cache, Content Security Policy, iframe restrictions, provider privacy settings and whether the provider allows embedding on that domain.','kashida-video-embed').'</p></details><details><summary>'.esc_html__('A shortcode stopped displaying after deletion','kashida-video-embed').'</summary><p>'.esc_html__('Deleting a saved video permanently removes its plugin entry. Shortcodes using that entry ID will no longer display. Update or remove those shortcodes from your pages.','kashida-video-embed').'</p></details><details><summary>'.esc_html__('Does the plugin send video data to Kashida?','kashida-video-embed').'</summary><p>'.esc_html__('No analytics or video data is sent to Kashida by this plugin. When a visitor loads an external player, the visitor’s browser connects to that provider and is subject to its privacy policy.','kashida-video-embed').'</p></details></div>';
-        echo '<div class="kve-card"><h2>'.esc_html__('About the plugin','kashida-video-embed').'</h2><p>'.esc_html__('Learn more about Kashida Video Embed, view its official WordPress plugin page, or visit the plugin page on the Kashida website.','kashida-video-embed').'</p><p class="kve-about-links"><a class="button button-primary" href="https://wordpress.org/plugins/kashida-video-embed/" target="_blank" rel="noopener noreferrer">'.esc_html__('View plugin on WordPress.org','kashida-video-embed').'</a> <a class="button" href="https://kashida.ly/wp-plugins/kashida-video-embed/" target="_blank" rel="noopener noreferrer">'.esc_html__('View plugin on Kashida website','kashida-video-embed').'</a></p></div>';
         echo '<div class="kve-card"><h2>'.esc_html__('Privacy, compatibility and support','kashida-video-embed').'</h2><p>'.esc_html__('The plugin does not add tracking or send video information to external Kashida services. Third-party embeds may contact their providers. Keep WordPress and the plugin updated, test after major theme or provider changes, and retain a backup before upgrading.','kashida-video-embed').'</p><p><a href="https://wordpress.org/documentation/article/wordpress-embeds/" target="_blank" rel="noopener noreferrer">'.esc_html__('WordPress embed documentation','kashida-video-embed').'</a> · <a href="https://dev.twitch.tv/docs/embed/" target="_blank" rel="noopener noreferrer">'.esc_html__('Twitch embed documentation','kashida-video-embed').'</a> · <a href="https://faq.dailymotion.com/hc/en-us/articles/115008959787-Embed-your-content" target="_blank" rel="noopener noreferrer">'.esc_html__('Dailymotion embed guide','kashida-video-embed').'</a></p></div>';
         echo '</div></div>';
         $this->footer();
@@ -397,7 +489,7 @@ KVELIBRARYJS;
         $featured_items = array();
         foreach ($ids as $id) {
             $post = get_post($id);
-            if (!$post || $post->post_type !== self::CPT || $post->post_status !== 'publish') continue;
+            if (!$this->is_video_post($post) || $post->post_status !== 'publish') continue;
             $video = $this->shortcode(array('id'=>$id, 'ratio'=>$ratio, 'controls'=>$atts['controls'], 'lazy'=>$atts['lazy']));
             if (!$video) continue;
             $title_text = get_the_title($id);
@@ -433,7 +525,7 @@ KVELIBRARYJS;
 
     public function shortcode($atts) {
         $atts = shortcode_atts(array('id'=>0,'url'=>'','ratio'=>'16:9','controls'=>'yes','lazy'=>'yes','display'=>'player'),$atts,'kashida_video_embed');
-        if ($atts['id']) { $id=absint($atts['id']); if (get_post_type($id)!==self::CPT) return ''; $atts['url']=get_post_meta($id,'_kve_url',true); $atts['input_mode']=get_post_meta($id,'_kve_input_mode',true) ?: 'url'; $atts['embed_code']=get_post_meta($id,'_kve_embed_code',true); $atts['dailymotion_player_id']=get_post_meta($id,'_kve_dailymotion_player_id',true); $atts['display']=get_post_meta($id,'_kve_display_mode',true) ?: 'player'; $atts['ratio']=get_post_meta($id,'_kve_ratio',true) ?: $atts['ratio']; $atts['controls']=get_post_meta($id,'_kve_controls',true)==='0'?'no':'yes'; $atts['lazy']=get_post_meta($id,'_kve_lazy',true)==='0'?'no':'yes'; }
+        if ($atts['id']) { $id=absint($atts['id']); if (!in_array(get_post_type($id), $this->get_video_post_types(), true)) return ''; $atts['url']=get_post_meta($id,'_kve_url',true); $atts['input_mode']=get_post_meta($id,'_kve_input_mode',true) ?: 'url'; $atts['embed_code']=get_post_meta($id,'_kve_embed_code',true); $atts['dailymotion_player_id']=get_post_meta($id,'_kve_dailymotion_player_id',true); $atts['display']=get_post_meta($id,'_kve_display_mode',true) ?: 'player'; $atts['ratio']=get_post_meta($id,'_kve_ratio',true) ?: $atts['ratio']; $atts['controls']=get_post_meta($id,'_kve_controls',true)==='0'?'no':'yes'; $atts['lazy']=get_post_meta($id,'_kve_lazy',true)==='0'?'no':'yes'; }
         return $this->render_video($atts['url'],$atts['ratio'],$atts['controls']==='yes',$atts['lazy']==='yes',isset($atts['input_mode'])?$atts['input_mode']:'url',isset($atts['display'])?$atts['display']:'player',isset($atts['embed_code'])?$atts['embed_code']:'',isset($atts['dailymotion_player_id'])?$atts['dailymotion_player_id']:'');
     }
     private function render_video($url,$ratio='16:9',$controls=true,$lazy=true,$input_mode='url',$display_mode='player',$embed_code='',$dailymotion_player_id='') {
@@ -459,7 +551,7 @@ KVELIBRARYJS;
             if ($display_mode !== 'provider') {
                 if (preg_match('~/status/(\d+)~', $path, $tweet_match)) {
                     $tweet_id = $tweet_match[1];
-                    $cache_key = 'kve_x_video_' . $tweet_id;
+                    $cache_key = 'kashida_video_embed_x_video_' . $tweet_id;
                     $video_url = get_transient($cache_key);
                     if (false === $video_url) {
                         $video_url = '';
@@ -487,7 +579,7 @@ KVELIBRARYJS;
                 }
                 return '<div class="kve-unavailable"><p>'.esc_html__('X does not provide a video-only stream for this post. Try another public video post or choose “Show provider details and interface”.','kashida-video-embed').'</p><a href="'.esc_url($url).'" target="_blank" rel="noopener noreferrer">'.esc_html__('Open video on X','kashida-video-embed').'</a></div>';
             }
-            $cache_key = 'kve_x_embed_' . md5($url);
+            $cache_key = 'kashida_video_embed_x_embed_' . md5($url);
             $response = get_transient($cache_key);
             if (false === $response) {
                 $request = wp_remote_get('https://publish.twitter.com/oembed?omit_script=true&dnt=true&url=' . rawurlencode($url), array('timeout'=>8, 'redirection'=>3));
@@ -498,7 +590,7 @@ KVELIBRARYJS;
                 } else { $response = ''; set_transient($cache_key, '', HOUR_IN_SECONDS); }
             }
             if ($response) {
-                wp_enqueue_script('kve-twitter-widgets');
+                wp_enqueue_script('kashida-video-embed-twitter-widgets');
                 $safe = wp_kses($response, array('blockquote'=>array('class'=>true,'cite'=>true),'a'=>array('href'=>true,'rel'=>true)));
                 return '<div class="kve-social-embed">'.$safe.'</div>';
             }
@@ -609,4 +701,4 @@ KVELIBRARYJS;
         return '<div class="kve-unavailable"><p>'.esc_html__('This video provider does not allow automatic embedding for this URL. Try a supported share link or check the provider’s embedding restrictions.','kashida-video-embed').'</p><a href="'.esc_url($url).'" target="_blank" rel="noopener noreferrer">'.esc_html__('Open video on its website','kashida-video-embed').'</a></div>';
     }
 }
-new Kashida_Video_Embed();
+new Kashida_Video_Embed_Plugin();
