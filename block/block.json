@@ -1,11 +1,11 @@
 {
   "apiVersion": 3,
   "name": "kashida/video-embed",
-  "version": "1.4.24",
+  "version": "1.4.25",
   "title": "Kashida Video Embed",
   "category": "embed",
   "icon": "video-alt3",
-  "description": "Embed a video from a supported URL or provider embed code.",
+  "description": "Embed a video from a supported share URL or provider iframe code.",
   "textdomain": "kashida-video-embed",
   "attributes": {
     "url": {
@@ -25,6 +25,6 @@
       "default": true
     }
   },
-  "editorScript": "kve-block-editor",
+  "editorScript": "kashida-video-embed-block-editor",
   "render": "file:./render.php"
 }

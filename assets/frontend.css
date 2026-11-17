@@ -268,3 +268,69 @@
 /* v1.4.12: independently configurable slider title color */
 .kve-gallery-slider .kve-gallery-title{color:var(--kve-slider-title-color,#fff)!important;}
 .kve-gallery-slider .kve-gallery-title .kve-slide-kicker{color:var(--kve-slider-title-color,#fff);opacity:.82;}
+
+/* UI/UX refinement — responsive polish, focus visibility and motion preferences. */
+.kve-video {
+  border-radius: 12px;
+  background: #101828;
+  box-shadow: 0 8px 24px rgba(16,24,40,.10);
+}
+.kve-video iframe,
+.kve-video video { border-radius: inherit; }
+.kve-unavailable {
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  color: #344054;
+  line-height: 1.65;
+}
+.kve-unavailable a {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.kve-gallery { min-width: 0; }
+.kve-gallery-track { align-items: start; }
+.kve-gallery-item {
+  border-radius: 12px;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.kve-gallery-item:focus-within {
+  outline: 3px solid color-mix(in srgb, var(--kve-accent,#d94f36) 55%, transparent);
+  outline-offset: 3px;
+}
+.kve-gallery-title {
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.kve-gallery-carousel .kve-gallery-track,
+.kve-gallery-slider .kve-gallery-track {
+  scrollbar-width: thin;
+  scrollbar-color: #aab4c3 transparent;
+}
+.kve-gallery-carousel .kve-gallery-track::-webkit-scrollbar,
+.kve-gallery-slider .kve-gallery-track::-webkit-scrollbar { height: 7px; }
+.kve-gallery-carousel .kve-gallery-track::-webkit-scrollbar-thumb,
+.kve-gallery-slider .kve-gallery-track::-webkit-scrollbar-thumb {
+  background: #aab4c3;
+  border-radius: 99px;
+}
+@media (max-width: 782px) {
+  .kve-gallery-track {
+    grid-template-columns: repeat(min(var(--kve-columns,2),2), minmax(0,1fr));
+    gap: var(--kve-gap,12px);
+  }
+  .kve-gallery-item { border-radius: 10px; }
+  .kve-gallery-title { padding: 9px 10px; }
+}
+@media (max-width: 480px) {
+  .kve-gallery-grid .kve-gallery-track {
+    grid-template-columns: minmax(0,1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kve-gallery-item,
+  .kve-gallery-carousel .kve-gallery-track,
+  .kve-gallery-slider .kve-gallery-track {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
