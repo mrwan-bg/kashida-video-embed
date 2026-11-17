@@ -12,7 +12,7 @@
   <a href="https://wordpress.org/plugins/kashida-video-embed/"><img src="https://img.shields.io/badge/WordPress-View%20Plugin-21759B?logo=wordpress&logoColor=white" alt="WordPress — View Plugin"></a>
   <a href="https://kashida.ly/wp-plugins/kashida-video-embed/"><img src="https://img.shields.io/badge/Kashida-View%20Plugin-6C4CF1" alt="Kashida — View Plugin"></a>
 </p>
-<p align="center"><strong>Version 1.4.24</strong> · <strong>WordPress 6.0+</strong> · <strong>PHP 7.4+</strong> · <strong>GPL-2.0-or-later</strong></p>
+<p align="center"><strong>Version 1.4.25</strong> · <strong>WordPress 6.0+</strong> · <strong>PHP 7.4+</strong> · <strong>GPL-2.0-or-later</strong></p>
 
 <p align="center">
   <a href="https://github.com/mrwan-bg/kashida-video-embed/releases">View all releases</a> ·
@@ -100,6 +100,13 @@ Provider restrictions still apply. Some services require canonical URLs, a provi
 5. **Generate the shortcode:** use the collection generator and copy the shortcode it produces.
 6. **Publish:** insert the shortcode in a WordPress page, post, or compatible shortcode area. Use the Gutenberg block for supported individual video embeds.
 
+## What's new in 1.4.25
+
+- Replaced short admin page identifiers with plugin-specific names to reduce naming collisions.
+- Added a bounded migration from the legacy video post type while preserving existing video IDs and metadata.
+- Updated plugin and Gutenberg block version metadata for the corrected WordPress.org release.
+- Adjusted the legacy-record migration query to work with WordPress query filters and resolve a Plugin Check performance finding.
+
 ## Requirements and compatibility
 
 | Requirement | Supported version |
@@ -107,14 +114,14 @@ Provider restrictions still apply. Some services require canonical URLs, a provi
 | WordPress minimum | 6.0 |
 | PHP minimum | 7.4 |
 | Tested up to | WordPress 7.1 |
-| Stable plugin version | 1.4.24 |
+| Stable plugin version | 1.4.25 |
 | License | GPL-2.0-or-later |
 
 Use a currently supported PHP release where your hosting environment and WordPress installation allow it. Back up your site and test updates on a staging site before deploying them to production.
 
 ## Installation
 
-1. Download [kashida-video-embed-1.4.24.zip](https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.24/kashida-video-embed-1.4.24.zip).
+1. Download [kashida-video-embed-1.4.25.zip](https://github.com/mrwan-bg/kashida-video-embed/releases/download/v1.4.25/kashida-video-embed-1.4.25.zip).
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
 3. Select the downloaded ZIP and click **Install Now**.
 4. Click **Activate Plugin**.
