@@ -735,3 +735,26 @@ msgstr ""
 
 msgid "Featured + Playlist layout"
 msgstr ""
+msgid "A main video with a side playlist, playlist height and scrolling, active-item color, border and icon colors, metadata visibility, spacing and card appearance."
+msgstr ""
+
+msgid "Choose one of five layouts and adjust the layout-specific controls. The preview is a design preview; actual playback and provider metadata depend on the source platform."
+msgstr ""
+
+msgid "Horizontal cards with responsive item counts, height, arrows, pagination dots, title and metadata visibility, overlay color and opacity, spacing and border radius."
+msgstr ""
+
+msgid "One featured slide with height, image fit, autoplay interval, arrows, dots, title visibility and color, overlay color and opacity, and container/card appearance controls."
+msgstr ""
+
+msgid "Open Video Collections to create or edit a reusable group. Select saved videos, choose a layout, configure its options, check the live preview, save, then copy the collection shortcode. Editing a saved collection keeps its shortcode unchanged."
+msgstr ""
+
+msgid "Responsive columns, title visibility, card background, title color and size, spacing and border radius."
+msgstr ""
+
+msgid "Settings available depend on the selected layout. Use the live preview to check visual changes, then save and test the shortcode on a front-end page. External players may look different from the preview."
+msgstr ""
+
+msgid "Vertical rows with optional information and metadata, thumbnail width, row background, title color and size, spacing and border radius."
+msgstr ""
