@@ -18,9 +18,24 @@ namespace MrwanBG\KashidaVideoEmbed;
 if (!defined('ABSPATH')) exit;
 
 final class Kashida_Video_Embed_Plugin {
+    /** @var self|null Holds the active plugin instance. */
+    private static $instance = null;
+
     const VERSION = '1.4.25';
     const CPT = 'kashida_video';
     const LEGACY_POST_TYPE = 'kve_video';
+    /**
+     * Return the single active plugin instance and register its WordPress hooks.
+     *
+     * @return self
+     */
+    public static function instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
     public function __construct() {
         add_action('init', array($this, 'register_content_type'));
         add_action('init', array($this, 'register_block'));
@@ -579,7 +594,7 @@ KVELIBRARYJS;
                 }
                 return '<div class="kve-unavailable"><p>'.esc_html__('X does not provide a video-only stream for this post. Try another public video post or choose “Show provider details and interface”.','kashida-video-embed').'</p><a href="'.esc_url($url).'" target="_blank" rel="noopener noreferrer">'.esc_html__('Open video on X','kashida-video-embed').'</a></div>';
             }
-            $cache_key = 'kashida_video_embed_x_embed_' . md5($url);
+            $cache_key = 'kashida_video_embed_x_embed_' . hash('sha256', $url);
             $response = get_transient($cache_key);
             if (false === $response) {
                 $request = wp_remote_get('https://publish.twitter.com/oembed?omit_script=true&dnt=true&url=' . rawurlencode($url), array('timeout'=>8, 'redirection'=>3));
@@ -701,4 +716,4 @@ KVELIBRARYJS;
         return '<div class="kve-unavailable"><p>'.esc_html__('This video provider does not allow automatic embedding for this URL. Try a supported share link or check the provider’s embedding restrictions.','kashida-video-embed').'</p><a href="'.esc_url($url).'" target="_blank" rel="noopener noreferrer">'.esc_html__('Open video on its website','kashida-video-embed').'</a></div>';
     }
 }
-new Kashida_Video_Embed_Plugin();
+Kashida_Video_Embed_Plugin::instance();
